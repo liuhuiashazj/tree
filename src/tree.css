@@ -1,0 +1,38 @@
+.jstree ul, .jstree li {
+    list-style: none;
+    vertical-align: top;
+    line-height: 20px;
+}
+
+.jstree-icon, .jstree-anchor {
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    vertical-align: middle;
+    -webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+
+}
+
+.jstree-item>.jstree-icon {
+    width: 20px;
+    background: url(fold.png) no-repeat -60px center transparent;
+
+
+}
+.jstree-open>.jstree-icon{
+    background: url(fold.png) no-repeat -30px center transparent;
+    cursor: pointer;
+}
+.jstree-close>.jstree-icon{
+    background: url(fold.png) no-repeat 0 center transparent;
+    cursor: pointer;
+}
+.jstree-item-on{
+    background-color: #ccc;
+}
