@@ -8,7 +8,7 @@
     <script type="text/javascript" src="src/jquery.min.js"></script>
     <script type="text/javascript" src="src/base.js"></script>
     <script type="text/javascript" src="src/dropdown.js"></script>
-    <script type="text/javascript" src="src/tree2.js"></script>
+    <script type="text/javascript" src="src/tree.js"></script>
 </head>
 <body>
 树1:本地树------------------
@@ -72,8 +72,8 @@
         window.tree = $.BaseTree.getExample({
             datas: treeData,
             parentId: 'test',
-            depth: 1,
-            open: true,
+            depth: 100,
+            open: false,
             clickFunc: function (e) {
                 console.log(e.target);
             }
