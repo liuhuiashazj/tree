@@ -50,13 +50,14 @@ var BaseTree = (function () {
             data = options.datas || {};
             this.depth = options.depth || depth;
             this.open = options.open || open;
+            this.treeData={};
             if (options.transData) this.transData = options.transData;
             this.parent = $.ldom.getById(parentId);
             this.parent.setAttribute('data-id', treeId + '-' + uid);
             this.parent.className = treeId;
             this.options = options;
             this.datas=options.datas;
-            this.bindDefault();
+            this.bindEvents();
             this.createTree();
 
         },
@@ -163,6 +164,9 @@ var BaseTree = (function () {
             curDepth = depth;
             curPaths = path.split(',');
             data = self.getDataByPath(path);
+            this.getData().done(function(){
+
+            });
             if (!data) {
                 this.fetchById(id, function (data) {
                     self.addDataToPath(path, data);
@@ -220,7 +224,7 @@ var BaseTree = (function () {
             parent.appendChild(ul);
             return ul;
         },
-        bindDefault: function () {
+        bindEvents: function () {
             var self = this, events = {};
             events['click .' + anchorCls] = self.evtFocus;
             events['mouseenter .' + anchorCls] = self.evtEnter;

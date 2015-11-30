@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <title></title>
     <link rel="stylesheet" href="src/tree.css"/>
+    <link rel="stylesheet" href="src/dropdown.css"/>
     <script type="text/javascript" src="src/jquery.min.js"></script>
     <script type="text/javascript" src="src/base.js"></script>
-    <script type="text/javascript" src="src/tree.js"></script>
+    <script type="text/javascript" src="src/dropdown.js"></script>
+    <script type="text/javascript" src="src/tree2.js"></script>
 </head>
 <body>
 树1:本地树------------------
@@ -67,16 +69,16 @@
         }
     ];
     window.onload = function () {
-        /*window.tree = BaseTree.getExample({
+        window.tree = $.BaseTree.getExample({
             datas: treeData,
             parentId: 'test',
-            depth: 5,
+            depth: 1,
             open: true,
             clickFunc: function (e) {
                 console.log(e.target);
             }
-        });*/
-        window.tree2 = RemoteTree.getExample({
+        });
+        window.tree2 = $.RemoteTree.getExample({
             parentId: 'test2',
             url: 'data/data.json',
             urlChild: 'data/databyid.json',

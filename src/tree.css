@@ -18,6 +18,10 @@
 	user-select: none;
 
 }
+.jstree-item-active{
+    background-color: #456;
+    color: white;
+}
 
 .jstree-item>.jstree-icon {
     width: 20px;
