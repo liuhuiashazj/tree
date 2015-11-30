@@ -5,19 +5,7 @@
     {
       "fid": "1",
       "dirname": "树叶树叶树叶10",
-      "havechild": "1",
-      "child": [
-        {
-          "fid": "2",
-          "dirname": "123",
-          "havechild": "0"
-        },
-        {
-          "fid": "3",
-          "dirname": "123123",
-          "havechild": "1"
-        }
-      ]
+      "havechild": "1"
     },
     {
       "fid": "4",
