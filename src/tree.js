@@ -26,24 +26,27 @@
 
 /*普通树*/
 (function ($) {
+    var uid = 0,
+    open = false,
+
+    depth = 1000,
+    treeId = 'jstree',
+    iconcls = 'jstree-icon',
+    iconclose = 'jstree-close',
+    iconopen = 'jstree-open',
+    licls = 'jstree-item',
+    anchorCls = 'jstree-anchor',
+    inputCls = 'jstree-input',
+    mouseOnCls = 'jstree-item-on',
+    focusCls = 'jstree-item-active';
     var BaseTree = (function () {
-        var uid = 0,
-        open = false,
-        treeId = 'jstree',
-        iconcls = 'jstree-icon',
-        iconclose = 'jstree-close',
-        iconopen = 'jstree-open',
-        licls = 'jstree-item',
-        anchorCls = 'jstree-anchor',
-        inputCls = 'jstree-input'
-        mouseOnCls = 'jstree-item-on',
-        focusCls = 'jstree-item-active',
-        curPaths = [],
-        curDepth = 0, depth = 1000;
+
         return {
             init: function (options) {
                 var uid = this.getUid(), parentId = options.parentId, data;
                 data = options.datas || {};
+                this.curPaths = [];
+                this.curDepth = 0;
                 this.depth = options.depth || depth;
                 this.open = options.open || open;
                 if (options.transData) this.transData = options.transData;
@@ -70,7 +73,7 @@
 
             bindEvents: function () {
                 var self = this, events = {};
-                this.initRigthDrop();
+
                 events['click .' + anchorCls] = self.evtFocus;
                 events['mouseenter .' + anchorCls] = self.evtEnter;
                 events['mouseleave .' + anchorCls] = self.evtLeave;
@@ -78,106 +81,6 @@
                 events['keyup .' + inputCls] = self.evtInputKeyup;
                 events['blur .' + inputCls] = self.evtInputBlur;
                 this.delegate(events);
-
-            },
-            initRigthDrop: function () {
-                var self = this;
-                this.rightDropdown = $.RightDropDown.getExample({
-                    el: '.jstree-item span',
-                    parent: '#' + treeId + '-' + uid, /*相对于谁来绝对定位*/
-                    leftOffset: 0,
-                    topOffset: 0,
-                    tpl: '<%for(var i=0;i<this.lists.length;i++){ list=this.lists[i];%><li data-value="<%list.value%>" ><%list.name%></li><%}%>',
-                    lists: [
-                        {
-                            name: '重命名',
-                            value: 'rename'
-                        },
-                        {
-                            name: '新建子目录',
-                            value: 'create'
-                        },
-                        {
-                            name: '删除',
-                            value: 'delete'
-                        }
-                    ],
-                    tplSpan: '<span class="op5"><%=name%></span>',
-                    selectCallback: function ($obj) {
-                        var path, id,
-                        $parentNode = this.$obj,
-                        type = $obj.attr('data-value');
-                        id = $parentNode.attr('data-tree-id');
-                        path = $parentNode.attr('data-path');
-                        switch (type) {
-                            case 'create':
-                                self.addNode($parentNode, path);
-                                break;
-                            case 'rename':
-                                self.renameNode($parentNode, path);
-                                break;
-                            case 'delete':
-                                self.deleteNode($parentNode, path);
-                                break;
-                            default :
-                                break;
-                        }
-                    }
-                });
-            },
-            renameNode: function ($obj, path) {
-                console.log($obj);
-                var $input=$('<input />');
-                $input.val($obj.html());
-                $input.attr('data-path',$obj.attr('data-path'));
-                $input.addClass(inputCls);
-                $obj.replaceWith($input);
-                $input.select().focus();
-                console.log('rename',  path);
-
-            },
-            deleteNode: function ($obj, path) {
-                var parent, parentNode,
-                map = this.removeDataByPath(path);
-                $obj.parent('li').remove();
-                parent = map.parent;
-                if (typeof parent.itemId != undefined) {
-                    parentNode = this.$parent.find('[data-tree-id=' + parent.itemId + ']');
-                    if (!parent.hasChild) parentNode.removeClass().addClass('jstree-item');
-                }
-
-            },
-            addNode: function ($obj, path) {
-                var data = {}, index,
-                $li = $obj.parent('li');
-                index = $li.find('li').length;
-                data[this.aliasText] = '新建文件夹';
-                data[this.aliasHasChild] = 0;
-                data['index'] = index;
-                data['itemId'] = this.getItemId();
-                data['isInput'] = 1;
-                this.addDataToPath(path, [data]);
-                this.createCtree($li[0], 1);
-                $li.find('input').select().focus();
-
-            },
-            evtInputKeyup: function (e) {
-                var $obj = $(e.target);
-                if (e.keyCode == 13) {
-                    $obj[0].blur();
-                }
-            },
-            evtInputBlur: function (e) {
-                var $span, data, path, val, rt,
-                $obj = $(e.target), $parent = $obj.parent('li'),
-                addCallback = this.options.addCallback;
-                addCallback && addCallback.call(this, e);
-                val = $obj.val();
-                path = $obj.attr('data-path');
-                rt = this.setDataByPath(path, {text: val, id: 100});
-                if(!rt) return;
-                $span = $('<span />').addClass(anchorCls).attr('data-path', path).html(val);
-                $obj.replaceWith($span);
 
             },
 
@@ -198,11 +101,11 @@
                 });
             },
             createCtree: function (parent, show) {
-                var self = this,
+                var self = this,$ul,
                 depth = parent.getAttribute('data-depth'),
                 path = parent.getAttribute('data-path'),
-                curDepth = depth;
-                curPaths = path.split(',');
+                thiscurDepth = depth;
+                this.curPaths = path.split(',');
                 $ul = $(parent).find('ul');
                 $ul.remove();
                 this.getData(path).done(function () {
@@ -297,7 +200,7 @@
                 $.each(child, function (index, childData) {
                     names[childData[name]] = 1;
                 });
-                if(names[options.text]) {
+                if (names[options.text]) {
                     console.log('不能重名');
                     return false;
                 }
@@ -340,13 +243,13 @@
                 hasChild = data[ahasChild] || this.hasChild(child);
                 hasChild = hasChild - 0;
                 data[ahasChild] = hasChild;
-                curPaths.push(data["index"]);
-                newPath = $.lutils.cloneArr(curPaths);
-                curDepth++;
-                newDepth = curDepth;
+                this.curPaths.push(data["index"]);
+                newPath = $.lutils.cloneArr(this.curPaths);
+                this.curDepth++;
+                newDepth = this.curDepth;
                 if (!hasChild) {
-                    curPaths.pop();
-                    curDepth--;
+                    this.curPaths.pop();
+                    this.curDepth--;
                 }
                 data.path = newPath;
                 li = document.createElement('LI');
@@ -374,16 +277,16 @@
                 }
                 if (((newDepth < this.depth ) && hasChild && child.length && !only) || data.isOpen) {
                     ul = this.createLis(child);
-                    curPaths.pop();
-                    curDepth--;
+                    this.curPaths.pop();
+                    this.curDepth--;
                     li.appendChild(ul);
                     data.isOpen = 1;
                     li.className = licls + ' ' + iconopen;
                 } else {
                     data.isOpen = 0;
                     li.className = licls + ' ' + iconclose;
-                    curPaths.pop();
-                    curDepth--;
+                    this.curPaths.pop();
+                    this.curDepth--;
                 }
 
                 return li;
@@ -531,6 +434,115 @@
         }
     });
     $.RemoteTree = RemoteTree;
+    var MenuTree = BaseTree.extend({
+        initRigthDrop: function () {
+            var self = this;
+            if (!this.options.useRight) return;
+            this.rightDropdown = $.RightDropDown.getExample({
+                el: '.jstree-item span',
+                parent: '#' + treeId + '-' + uid, /*相对于谁来绝对定位*/
+                leftOffset: 0,
+                topOffset: 0,
+                tpl: '<%for(var i=0;i<this.lists.length;i++){ list=this.lists[i];%><li data-value="<%list.value%>" ><%list.name%></li><%}%>',
+                lists: [
+                    {
+                        name: '重命名',
+                        value: 'rename'
+                    },
+                    {
+                        name: '新建子目录',
+                        value: 'create'
+                    },
+                    {
+                        name: '删除',
+                        value: 'delete'
+                    }
+                ],
+                tplSpan: '<span class="op5"><%=name%></span>',
+                selectCallback: function ($obj) {
+                    var path, id,
+                    $parentNode = this.$obj,
+                    type = $obj.attr('data-value');
+                    id = $parentNode.attr('data-tree-id');
+                    path = $parentNode.attr('data-path');
+                    switch (type) {
+                        case 'create':
+                            self.addNode($parentNode, path);
+                            break;
+                        case 'rename':
+                            self.renameNode($parentNode, path);
+                            break;
+                        case 'delete':
+                            self.deleteNode($parentNode, path);
+                            break;
+                        default :
+                            break;
+                    }
+                }
+            });
+        },
+        addNode: function ($obj, path) {
+            var data = {}, index,
+            $li = $obj.parent('li');
+            index = $li.find('li').length;
+            data[this.aliasText] = '新建文件夹';
+            data[this.aliasHasChild] = 0;
+            data['index'] = index;
+            data['itemId'] = this.getItemId();
+            data['isInput'] = 1;
+            this.addDataToPath(path, [data]);
+            this.createCtree($li[0], 1);
+            $li.find('input').select().focus();
+
+        },
+        renameNode: function ($obj, path) {
+            var $input = $('<input />');
+            $input.val($obj.html());
+            $input.attr('data-path', $obj.attr('data-path'));
+            $input.addClass(inputCls);
+            $obj.replaceWith($input);
+            $input.select().focus();
+
+        },
+        deleteNode: function ($obj, path) {
+            var parent, parentNode,
+            map = this.removeDataByPath(path);
+            $obj.parent('li').remove();
+            parent = map.parent;
+            if (typeof parent.itemId != undefined) {
+                parentNode = this.$parent.find('[data-tree-id=' + parent.itemId + ']');
+                if (!parent.hasChild) parentNode.removeClass().addClass('jstree-item');
+            }
+
+        },
+        addEvents: function () {
+            this.initRigthDrop();
+            var self = this, events = {};
+            events['keyup .' + inputCls] = self.evtInputKeyup;
+            events['blur .' + inputCls] = self.evtInputBlur;
+            this.delegate(events);
+        },
+        evtInputKeyup: function (e) {
+            var $obj = $(e.target);
+            if (e.keyCode == 13) {
+                $obj[0].blur();
+            }
+        },
+        evtInputBlur: function (e) {
+            var $span, data, path, val, rt,
+            $obj = $(e.target), $parent = $obj.parent('li'),
+            addCallback = this.options.addCallback;
+            addCallback && addCallback.call(this, e);
+            val = $obj.val();
+            path = $obj.attr('data-path');
+            rt = this.setDataByPath(path, {text: val, id: 100});
+            if (!rt) return;
+            $span = $('<span />').addClass(anchorCls).attr('data-path', path).html(val);
+            $obj.replaceWith($span);
+
+        }
+    });
+    $.MenuTree = MenuTree;
 
 })($);
 
