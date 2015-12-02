@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dc21301e-6801-40bc-91d5-1e431b37afa0" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/drag.html" afterPath="$PROJECT_DIR$/drag.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/dropdown.js" afterPath="$PROJECT_DIR$/src/dropdown.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tree.css" afterPath="$PROJECT_DIR$/src/tree.css" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tree.html" afterPath="$PROJECT_DIR$/tree.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tree.js" afterPath="$PROJECT_DIR$/src/tree.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/treenew.js" afterPath="$PROJECT_DIR$/src/treenew.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="tree.iws" />
@@ -30,14 +28,14 @@
     <favorites_list name="tree" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.55253625">
+    <splitter split-orientation="horizontal" split-proportion="0.49577296">
       <split-first>
         <leaf>
           <file leaf-file-name="tree.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/src/tree.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="3.5" vertical-offset="13264" max-vertical-offset="17798">
-                  <caret line="594" column="41" selection-start-line="594" selection-start-column="41" selection-end-line="594" selection-end-column="41" />
+                <state vertical-scroll-proportion="-4.75" vertical-offset="12780" max-vertical-offset="17006">
+                  <caret line="593" column="41" selection-start-line="593" selection-start-column="41" selection-end-line="593" selection-end-column="41" />
                   <folding>
                     <element signature="n#!!doc" expanded="true" />
                   </folding>
@@ -45,12 +43,14 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="treenew.js" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/src/treenew.js">
+          <file leaf-file-name="newtree.js" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/src/newtree.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.41834453" vertical-offset="66" max-vertical-offset="17270">
-                  <caret line="44" column="19" selection-start-line="44" selection-start-column="19" selection-end-line="44" selection-end-column="19" />
-                  <folding />
+                <state vertical-scroll-proportion="0.6378316" vertical-offset="6311" max-vertical-offset="18040">
+                  <caret line="312" column="47" selection-start-line="312" selection-start-column="47" selection-end-line="312" selection-end-column="47" />
+                  <folding>
+                    <element signature="n#!!doc" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -180,8 +180,8 @@
           <file leaf-file-name="tree.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/tree.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.561707" vertical-offset="1559" max-vertical-offset="20086">
-                  <caret line="82" column="0" selection-start-line="82" selection-start-column="0" selection-end-line="82" selection-end-column="0" />
+                <state vertical-scroll-proportion="0.3587082" vertical-offset="13109" max-vertical-offset="17314">
+                  <caret line="601" column="91" selection-start-line="601" selection-start-column="34" selection-end-line="601" selection-end-column="91" />
                   <folding>
                     <element signature="n#!!doc" expanded="true" />
                   </folding>
@@ -189,10 +189,20 @@
               </provider>
             </entry>
           </file>
+          <file leaf-file-name="treenew.js" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/treenew.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="17402">
+                  <caret line="12" column="21" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
           <file leaf-file-name="test.html" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/test.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-0.0" vertical-offset="726" max-vertical-offset="1672">
+                <state vertical-scroll-proportion="2.1290324" vertical-offset="792" max-vertical-offset="2024">
                   <caret line="33" column="36" selection-start-line="33" selection-start-column="36" selection-end-line="33" selection-end-column="36" />
                   <folding />
                 </state>
@@ -212,8 +222,8 @@
           <file leaf-file-name="tree.html" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/tree.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-1.8390805" vertical-offset="1622" max-vertical-offset="2508">
-                  <caret line="81" column="18" selection-start-line="81" selection-start-column="18" selection-end-line="81" selection-end-column="18" />
+                <state vertical-scroll-proportion="-0.82758623" vertical-offset="1204" max-vertical-offset="2508">
+                  <caret line="58" column="21" selection-start-line="58" selection-start-column="21" selection-end-line="58" selection-end-column="21" />
                   <folding />
                 </state>
               </provider>
@@ -237,8 +247,10 @@
         <option value="$PROJECT_DIR$/src/dropdown.js" />
         <option value="$PROJECT_DIR$/src/drag.css" />
         <option value="$PROJECT_DIR$/src/tree.css" />
-        <option value="$PROJECT_DIR$/tree.html" />
+        <option value="$PROJECT_DIR$/src/treenew.js" />
         <option value="$PROJECT_DIR$/src/tree.js" />
+        <option value="$PROJECT_DIR$/tree.html" />
+        <option value="$PROJECT_DIR$/src/newtree.js" />
       </list>
     </option>
   </component>
@@ -416,12 +428,13 @@
     <frame x="1283" y="23" width="1677" height="1027" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32941177" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.57860965" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32846716" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5781022" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32939914" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32941177" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24954128" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18055555" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.1370773" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -430,7 +443,6 @@
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -521,14 +533,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-2.6551723" vertical-offset="880" max-vertical-offset="2684">
           <caret line="47" column="38" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="38" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="726" max-vertical-offset="1650">
-          <caret line="33" column="36" selection-start-line="33" selection-start-column="36" selection-end-line="33" selection-end-column="36" />
           <folding />
         </state>
       </provider>
@@ -625,29 +629,47 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/test.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="2.1290324" vertical-offset="792" max-vertical-offset="2024">
+          <caret line="33" column="36" selection-start-line="33" selection-start-column="36" selection-end-line="33" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/treenew.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="17402">
+          <caret line="12" column="21" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/tree.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-1.8390805" vertical-offset="1622" max-vertical-offset="2508">
-          <caret line="81" column="18" selection-start-line="81" selection-start-column="18" selection-end-line="81" selection-end-column="18" />
+        <state vertical-scroll-proportion="-0.82758623" vertical-offset="1204" max-vertical-offset="2508">
+          <caret line="58" column="21" selection-start-line="58" selection-start-column="21" selection-end-line="58" selection-end-column="21" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/tree.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="3.5" vertical-offset="13264" max-vertical-offset="17798">
-          <caret line="594" column="41" selection-start-line="594" selection-start-column="41" selection-end-line="594" selection-end-column="41" />
+        <state vertical-scroll-proportion="-4.75" vertical-offset="12780" max-vertical-offset="17006">
+          <caret line="593" column="41" selection-start-line="593" selection-start-column="41" selection-end-line="593" selection-end-column="41" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/treenew.js">
+    <entry file="file://$PROJECT_DIR$/src/newtree.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.41834453" vertical-offset="66" max-vertical-offset="17270">
-          <caret line="44" column="19" selection-start-line="44" selection-start-column="19" selection-end-line="44" selection-end-column="19" />
-          <folding />
+        <state vertical-scroll-proportion="0.6378316" vertical-offset="6311" max-vertical-offset="18040">
+          <caret line="312" column="47" selection-start-line="312" selection-start-column="47" selection-end-line="312" selection-end-column="47" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

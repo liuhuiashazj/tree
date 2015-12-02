@@ -94,7 +94,6 @@
                 events['click .' + anchorCls] = self.evtClick;
                 events['mouseenter .' + anchorCls] = self.evtEnter;
                 events['mouseleave .' + anchorCls] = self.evtLeave;
-                events['dragstart .' + anchorCls] = self.evtDragStart;
 
                 events['click .' + iconcls] = self.evtFold;
                 events['keyup .' + inputCls] = self.evtInputKeyup;

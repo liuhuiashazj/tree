@@ -58,16 +58,16 @@
                 this.parent = this.$parent[0];
 
                 this.$parent.attr('data-tree-id', treeId + '-' + uid);
+                this.$parent.attr('id', treeId + '-' + uid);
                 this.$parent.addClass(treeId);
 
                 $.each(plugins, function (index, plugin) {
                     plugin = $.BaseTree.plugins[plugin];
                     plugin && plugin.init.call(self, options);
                 });
-                this.allData = {};
-                this.allData['data-tree-id', treeId + '-' + uid];
+
                 this.datas = this.transData(options.datas);
-                this.allData['datas'] = this.datas;
+                this.mapPath = {};
 
                 this.aliasHasChild = this.alias('hasChild');
                 this.aliasId = this.alias('id');
@@ -82,8 +82,10 @@
                 this.itemId = this.itemId || 0;
                 return this.itemId++;
             },
-            getDataByItemId: function () {
-
+            getDataByItemId: function (id) {
+                var data, path = this.mapPath[id];
+                data = this.getDataByPath(path.join(','));
+                return data;
             },
 
             bindEvents: function () {
@@ -97,7 +99,6 @@
                 events['click .' + anchorCls] = self.evtClick;
                 events['mouseenter .' + anchorCls] = self.evtEnter;
                 events['mouseleave .' + anchorCls] = self.evtLeave;
-                events['dragstart .' + anchorCls] = self.evtDragStart;
 
                 events['click .' + iconcls] = self.evtFold;
                 events['keyup .' + inputCls] = self.evtInputKeyup;
@@ -113,10 +114,10 @@
                 var self = this;
                 $(this.parent).html('');
                 this.getData().done(function () {
-                    var datas, parent = self.parent, dom,
+                    var datas, parent = self.parent,
                     map = self.getDataByPath();
                     datas = map.data.child;
-                    dom = self.insertDataToDom(parent, datas, show);
+                    self.insertDataToDom(parent, datas, show);
                     if (!self.open) {
                         self.closeAll();
                     }
@@ -184,36 +185,69 @@
 
             },
             removeDataByPath: function (path) {
-                var child, parent,
+                var self = this, child, parent, depth, itemId, data,
                 map = this.getDataByPath(path);
+                data = map.data;
                 parent = map.parent;
+
                 parent.child.splice(map.index, 1);
-                if (!parent.child.length) parent[this.aliasHasChild] = false;
+                delete self.mapPath[data.itemId];
+                this.resetPath(parent.path.join(','));
+
+                if (!parent.child.length) {
+                    parent[this.aliasHasChild] = 0;
+                }
                 return map;
 
             },
+            resetPath: function (path) {
+                var self = this, data, arrPath, data, map, newArr;
+                map = this.getDataByPath(path);
+                data = map.data;
+                arrPath = data.path;
+                depth = data.depth;
+                $.each(data.child, function (i, d) {
+                    d = data.child[i];
+                    arrPath.push(i);
+                    newArr = $.extend([], arrPath);
+                    d.path = newArr;
+                    self.mapPath[d.itemId] = newArr;
+                    arrPath.pop();
+                    d.index = i;
+                    d.depth = depth + 1;
+                    if (d.hasChild) {
+                        self.resetPath(newArr.join(','));
+                    }
+
+                });
+            },
 
             addDataToPath: function (path, odata) {/*odata为数组*/
-                var self = this, data, map, rt = true, child, names = {}, name = self.aliasText;
-                data = this.getDataByPath(path).data;
+                var self = this, data, map, rt = true,
+                depth, child, names = {}, name = self.aliasText, index;
+                map = this.getDataByPath(path);
+                data = map.data;
                 child = data.child || [];
+
                 $.each(child, function (index, childData) {
                     names[childData[name]] = 1;
                 });
 
-                $.each(odata, function (index, data) {
+                $.each(odata, function (i, d) {
                     if (!names[data[name]]) {
-                        child.push(data);
+                        child.push(d);
                     } else {
                         console.log('重名');
                         rt = false;
 
                     }
                 });
+
                 data.hasChild = child.length;
                 data.child = child;
                 data.isOpen = 1;
                 data.isInput = 0;
+                this.resetPath(data.path.join(','));
                 return rt;
 
             },
@@ -249,9 +283,8 @@
                 ul = document.createElement('UL');
                 for (var i = 0, l = datas.length; i < l; i++) {
                     data = datas[i];
-                    //data[apath] = i;
                     data['itemId'] = this.getItemId();
-                    data.index = i;
+                    data['index'] = i;
                     li = this.createLi(data, only);
                     ul.appendChild(li);
                 }
@@ -277,46 +310,38 @@
                     this.curDepth--;
                 }
                 data.path = newPath;
-                li = document.createElement('LI');
-                li.className = licls;
-                li.setAttribute('data-depth', newDepth);
-                li.setAttribute('data-tree-id', itemId);
-                li.setAttribute('data-child', hasChild);
-                li.setAttribute('data-path', newPath.join(','));
+                this.mapPath[itemId] = newPath;
+                data.depth = newDepth;
+                li = $('<li />').addClass(licls).attr('data-tree-id', itemId);
+                i = $('<i />').addClass(iconcls).appendTo(li);
 
-                i = document.createElement('I');
-                i.className = iconcls;
-                li.appendChild(i);
                 if (!data.isInput) {
-                    span = document.createElement('span');
-                    span.innerHTML = text;
-                    span.className = anchorCls;
+                    span = $('<span />').html(text).addClass(anchorCls);
+
                 } else {
-                    span = document.createElement('input');
-                    span.setAttribute('value', text);
-                    span.className = inputCls;
+                    span = $('<input />').val(text).addClass(inputCls);
+
                 }
-                span.setAttribute('draggable', 'true');
-                span.setAttribute('data-path', newPath.join(','));
-                li.appendChild(span);
+                span.attr('draggable', 'true').appendTo(li);
                 if (!hasChild) {
-                    return li;
+                    return li[0];
                 }
                 if (((newDepth < this.depth ) && hasChild && child.length && !only) || data.isOpen) {
                     ul = this.createLis(child);
                     this.curPaths.pop();
                     this.curDepth--;
-                    li.appendChild(ul);
                     data.isOpen = 1;
-                    li.className = licls + ' ' + iconopen;
+                    li.append(ul);
+                    li.addClass(iconopen);
                 } else {
-                    data.isOpen = 0;
-                    li.className = licls + ' ' + iconclose;
                     this.curPaths.pop();
                     this.curDepth--;
+                    data.isOpen = 0;
+                    li.addClass(iconclose);
+
                 }
 
-                return li;
+                return li[0];
 
             },
             fetchById: function (id, callback) {
@@ -504,6 +529,7 @@
             },
             initRigthDrop: function () {
                 var self = this;
+                console.log();
                 this.rightDropdown = $.RightDropDown.getExample({
                     el: '.jstree-item span',
                     parent: '#' + treeId + '-' + uid, /*相对于谁来绝对定位*/
@@ -545,15 +571,18 @@
                 });
             },
             addNode: function ($obj) {
-                var self = this, data = {}, index, $ul, cli, hasChild, len,
+                var self = this, data, id, treeData,
+                $ul, hasChild, len,
                 $li = $obj.parent('li');
                 $li.addClass(iconopen);
-                hasChild = $li.attr('data-child') - 0;
-                this.curPaths = $li.attr('data-path').split(',');
-                this.curDepth = $li.attr('data-depth');
+                id = $li.attr('data-tree-id');
+                treeData = this.getDataByItemId(id);
+                data = treeData.data;
+                hasChild = data.hasChild - 0;
+                this.curPaths = data.path;
+                this.curDepth = data.depth;
                 $ul = $li.find('>ul');
                 len = $ul.length;
-
                 if (len) {
                     $ul.show();
                     this.insertInputToUl($ul);
@@ -588,7 +617,6 @@
             renameNode: function ($obj) {
                 var $input = $('<input />');
                 $input.val($obj.html());
-                $input.attr('data-path', $obj.attr('data-path'));
                 $input.attr('data-isrename', 1);
                 $input.addClass(inputCls);
                 $obj.replaceWith($input);
@@ -596,15 +624,16 @@
 
             },
             deleteNode: function ($obj) {
-                var parent, parentNode, path, map, $li;
+                var parent, path, map, $li, id, $parent;
                 $li = $obj.parent('li');
-                path = $li.attr('data-path');
+                id = $li.attr('data-tree-id');
+                path = this.mapPath[id].join(',');
                 map = this.removeDataByPath(path);
                 $li.remove();
                 parent = map.parent;
-                if (typeof parent.itemId != undefined) {
-                    parentNode = this.$parent.find('[data-tree-id=' + parent.itemId + ']');
-                    if (!parent.hasChild) parentNode.removeClass().addClass('jstree-item');
+                $parent=this.$parent.find('[data-tree-id=' + parent.itemId + ']');
+                if (!parent.hasChild) {
+                    $parent.removeClass().addClass(licls);
                 }
 
             },
@@ -622,23 +651,24 @@
             },
             evtInputBlur: function (e) {
                 e.stopPropagation();
-                var $span, data, path, val, rt, isadd, parentPath,
+                var $span, data, path, val, rt, isadd, parentPath, id, $li,
                 $obj = $(e.target), arr = [],
                 addCallback = this.options.addCallback;
                 addCallback && addCallback.call(this, e);
+                $li = $obj.parent('li');
+                id = $li.attr('data-tree-id');
                 val = $obj.val();
                 isadd = $obj.attr('data-isadd');
-                path = $obj.attr('data-path');
-                arr = path.split(',');
-                arr.pop();
                 if (isadd) {
                     data = $obj.attr('data-data');
                     data = JSON.parse(data);
-
+                    arr = data.path;
+                    arr.pop();
                     data[this.aliasText] = val;
                     parentPath = arr.join(',');
                     rt = this.addDataToPath(parentPath, [data]);
                 } else {
+                    path = this.mapPath[id].join(',');
                     rt = this.setDataByPath(path, {text: val, id: 100});
 
                 }
