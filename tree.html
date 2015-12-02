@@ -74,14 +74,13 @@
         window.tree = $.BaseTree.getExample({
             datas: treeData,
             parentId: 'test',
-            useRight: true,
             depth: 100,
-            open: true,
+            open: false,
             url: 'data/data.json',
             urlChild: 'data/databyid.json',
-            plugins:['menu'],
+            plugins:[/*'remote',*/'menu'],
             clickFunc: function (e) {
-                console.log(e.target);
+                //console.log(e.target);
             }
         });
         /*window.tree2 = $.RemoteTree.getExample({

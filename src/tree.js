@@ -80,7 +80,7 @@
             bindEvents: function () {
                 var self = this, events = {};
 
-                //events['click .' + anchorCls] = self.evtFocus;
+                events['click .' + anchorCls] = self.evtClick;
                 events['mouseenter .' + anchorCls] = self.evtEnter;
                 events['mouseleave .' + anchorCls] = self.evtLeave;
                 events['dragstart .' + anchorCls] = self.evtDragStart;
@@ -112,10 +112,10 @@
                 });
             },
             createCtree: function (parent, show) {
-                var self = this, $ul,
+                var self = this, $ul, defferd = $.Deferred(),
                 depth = parent.getAttribute('data-depth'),
-                path = parent.getAttribute('data-path'),
-                thiscurDepth = depth;
+                path = parent.getAttribute('data-path');
+                this.curDepth = depth;
                 this.curPaths = path.split(',');
                 $ul = $(parent).find('ul');
                 $ul.remove();
@@ -124,7 +124,9 @@
                     datas = map.data.child;
                     if (datas.length) $(parent).addClass(iconopen);
                     self.insertDataToDom(parent, datas, 1);
+                    defferd.resolve();
                 });
+                return defferd.promise();
 
             },
             getData: function (path) {
@@ -180,7 +182,7 @@
             },
 
             addDataToPath: function (path, odata) {/*odata为数组*/
-                var self = this, data, map, child, names = {}, name = self.aliasText;
+                var self = this, data, map, rt = true, child, names = {}, name = self.aliasText;
                 data = this.getDataByPath(path).data;
                 child = data.child || [];
                 $.each(child, function (index, childData) {
@@ -192,24 +194,27 @@
                         child.push(data);
                     } else {
                         console.log('重名');
+                        rt = false;
 
                     }
-
                 });
                 data.hasChild = child.length;
                 data.child = child;
                 data.isOpen = 1;
-                return data;
+                data.isInput = 0;
+                return rt;
 
             },
 
             setDataByPath: function (path, options) {
-                var child, parent, data, names = {},
+                var child, parent, data, names = {}, arr, index,
                 name = this.aliasText,
                 map = this.getDataByPath(path);
+                arr = path.split(',');
+                index = arr.pop();
                 child = map.parent.child || [];
-                $.each(child, function (index, childData) {
-                    names[childData[name]] = 1;
+                $.each(child, function (i, childData) {
+                    if (i != index) names[childData[name]] = 1;
                 });
                 if (names[options.text]) {
                     console.log('不能重名');
@@ -320,22 +325,44 @@
                 self.$activeItem.addClass(focusCls);
                 callback && callback.call(self, e);
             },
+            evtClick: function (e) {
+                var self = this;
+                this.clicks = this.clicks || 0;
+                this.clicks++;
+                if (this.clicks == 1) {
+                    this.clickTimer = setTimeout(function () {
+                        self.clicks = 0;
+                        self.evtFocus(e);
+                    }, 400);
+                } else {
+                    clearTimeout(this.clickTimer);
+                    this.clicks = 0;
+                    this.evtDbclick(e);
+                }
+
+            },
             evtFold: function (e) {
-                var self = this, show,
+                var self = this, show, $ul,
                 obj = e.target,
                 $li = $(obj).parent('li');
+                $ul = $li.find('>ul');
                 if ($li.hasClass(iconclose)) {
                     $li.removeClass(iconclose).addClass(iconopen);
                     show = 1;
-                    self.createCtree($li[0], show);
+                    if (!$ul.length) {
+                        self.createCtree($li[0], show);
+                    }
+                    $ul.show();
                 } else if ($li.hasClass(iconopen)) {
                     $li.removeClass(iconopen).addClass(iconclose);
                     show = 0;
+                    $ul.hide();
                 } else {
                     return;
                 }
 
             },
+
             closeAll: function () {
                 var dom = this.tree, ul, hasChild, cls;
                 $(dom).find('li ul').hide();
@@ -451,9 +478,12 @@
     })();
     $.BaseTree.plugins.menu = (function () {
         var obj = {
+            getFileId: function () {
+                this.fileId = this.fileId || 0;
+                return this.fileId++;
+            },
             initRigthDrop: function () {
                 var self = this;
-                if (!this.options.useRight) return;
                 this.rightDropdown = $.RightDropDown.getExample({
                     el: '.jstree-item span',
                     parent: '#' + treeId + '-' + uid, /*相对于谁来绝对定位*/
@@ -479,17 +509,15 @@
                         var path, id,
                         $parentNode = this.$obj,
                         type = $obj.attr('data-value');
-                        id = $parentNode.attr('data-tree-id');
-                        path = $parentNode.attr('data-path');
                         switch (type) {
                             case 'create':
-                                self.addNode($parentNode, path);
+                                self.addNode($parentNode);
                                 break;
                             case 'rename':
-                                self.renameNode($parentNode, path);
+                                self.renameNode($parentNode);
                                 break;
                             case 'delete':
-                                self.deleteNode($parentNode, path);
+                                self.deleteNode($parentNode);
                                 break;
                             default :
                                 break;
@@ -497,33 +525,62 @@
                     }
                 });
             },
-            addNode: function ($obj, path) {
-                var data = {}, index,
+            addNode: function ($obj) {
+                var self = this, data = {}, index, $ul, cli, hasChild, len,
                 $li = $obj.parent('li');
-                index = $li.find('li').length;
-                data[this.aliasText] = '新建文件夹';
+                $li.addClass(iconopen);
+                hasChild = $li.attr('data-child') - 0;
+                this.curPaths = $li.attr('data-path').split(',');
+                this.curDepth = $li.attr('data-depth');
+                $ul = $li.find('>ul');
+                len = $ul.length;
+                //debugger;
+                if (len) {
+                    this.insertInputToUl($ul);
+                } else if (!len && !hasChild) {
+                    $ul = $('<ul />');
+                    $li.append($ul);
+                    this.insertInputToUl($ul);
+                } else if (!len && hasChild) {
+                    this.createCtree($li[0], 1).done(function () {
+                        $ul = $li.find('>ul');
+                        self.insertInputToUl($ul);
+                    });
+                }
+
+            },
+            insertInputToUl: function ($ul) {
+                var data = {}, index, cli;
+                index = $ul.find('>li').length;
+                data[this.aliasText] = '新建文件夹' + this.getFileId();
                 data[this.aliasHasChild] = 0;
                 data['index'] = index;
                 data['itemId'] = this.getItemId();
                 data['isInput'] = 1;
-                this.addDataToPath(path, [data]);
-                this.createCtree($li[0], 1);
-                $li.find('input').select().focus();
+                cli = this.createLi(data, 1);
+                $ul.append(cli);
+                $ul.find('input')
+                .attr('data-isadd', 1)
+                .attr('data-data', JSON.stringify(data))
+                .select().focus();
 
             },
-            renameNode: function ($obj, path) {
+            renameNode: function ($obj) {
                 var $input = $('<input />');
                 $input.val($obj.html());
                 $input.attr('data-path', $obj.attr('data-path'));
+                $input.attr('data-isrename', 1);
                 $input.addClass(inputCls);
                 $obj.replaceWith($input);
                 $input.select().focus();
 
             },
-            deleteNode: function ($obj, path) {
-                var parent, parentNode,
+            deleteNode: function ($obj) {
+                var parent, parentNode, path, map, $li;
+                $li = $obj.parent('li');
+                path = $li.attr('data-path');
                 map = this.removeDataByPath(path);
-                $obj.parent('li').remove();
+                $li.remove();
                 parent = map.parent;
                 if (typeof parent.itemId != undefined) {
                     parentNode = this.$parent.find('[data-tree-id=' + parent.itemId + ']');
@@ -535,8 +592,14 @@
                 this.initRigthDrop();
                 var self = this, events = {};
                 events['keyup .' + inputCls] = self.evtInputKeyup;
-                events['blur .' + inputCls] = self.evtInputBlur;
+                events['blur focusout .' + inputCls] = self.evtInputBlur;
+                //events['dbclick .'+anchorCls]=self.evtDbclick;
                 this.delegate(events);
+            },
+            evtDbclick: function (e) {
+
+                var $target = $(e.target);
+                this.renameNode($target);
             },
             evtInputKeyup: function (e) {
                 var $obj = $(e.target);
@@ -545,14 +608,32 @@
                 }
             },
             evtInputBlur: function (e) {
-                var $span, data, path, val, rt,
-                $obj = $(e.target), $parent = $obj.parent('li'),
+                e.stopPropagation();
+                var $span, data, path, val, rt, isadd, parentPath,
+                $obj = $(e.target), arr = [],
                 addCallback = this.options.addCallback;
                 addCallback && addCallback.call(this, e);
                 val = $obj.val();
+                isadd = $obj.attr('data-isadd');
                 path = $obj.attr('data-path');
-                rt = this.setDataByPath(path, {text: val, id: 100});
-                if (!rt) return;
+                arr = path.split(',');
+                arr.pop();
+                if (isadd) {
+                    data = $obj.attr('data-data');
+                    data = JSON.parse(data);
+
+                    data[this.aliasText] = val;
+                    parentPath = arr.join(',');
+                    rt = this.addDataToPath(parentPath, [data]);
+                } else {
+                    rt = this.setDataByPath(path, {text: val, id: 100});
+
+                }
+
+                if (!rt) {
+                    $obj.select().focus();
+                    return;
+                }
                 $span = $('<span />').addClass(anchorCls).attr('data-path', path).html(val);
                 $obj.replaceWith($span);
 
@@ -566,6 +647,14 @@
         }
 
     })();
+    $.BaseTree.plugins.dnd = (function () {
+        var obj = {};
+        return {
+            init: function () {
+                $.extend(this,obj);
+            }
+        }
+    });
 
 })($);
 
