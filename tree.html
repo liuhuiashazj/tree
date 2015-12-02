@@ -5,6 +5,7 @@
     <title></title>
     <link rel="stylesheet" href="src/tree.css"/>
     <link rel="stylesheet" href="src/dropdown.css"/>
+    <link rel="stylesheet" href="src/drag.css"/>
     <script type="text/javascript" src="src/jquery.min.js"></script>
     <script type="text/javascript" src="src/base.js"></script>
     <script type="text/javascript" src="src/dropdown.js"></script>
@@ -75,10 +76,10 @@
             datas: treeData,
             parentId: 'test',
             depth: 100,
-            open: false,
+            open: true,
             url: 'data/data.json',
             urlChild: 'data/databyid.json',
-            plugins:[/*'remote',*/'menu'],
+            plugins:[/*'remote',*/'menu','dnd'],
             clickFunc: function (e) {
                 //console.log(e.target);
             }

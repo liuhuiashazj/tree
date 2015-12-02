@@ -18,6 +18,9 @@
 	user-select: none;
 
 }
+.jstree-anchor{
+    border: 2px dotted transparent;
+}
 .jstree-item-active{
     background-color: #456;
     color: white;

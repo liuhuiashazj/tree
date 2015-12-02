@@ -45,11 +45,11 @@
     }
 </style>
 <body>
-<div id="test3" title="拖拽我" draggable="true" class="test3">拖拽我</div>
+<span id="test3" title="拖拽我" draggable="true" class="test3">拖拽我</span>
 <div id="test4" class="test4">放下我</div>
 <div id="test5" class='test4 nodrop'>asdfasdf</div>
 <script type="text/javascript">
-    var dom = $('#test3'), eleDrag,
+    var dom = $('#test3'),
             drop = $('.test4'),
             $dragText = $('<div />').addClass('drag-icon').appendTo('body').hide();
     var img = new Image();
@@ -61,7 +61,6 @@
         ev.dataTransfer.setData('text', ev.target.innerHTML);
         ev.dataTransfer.setDragImage(img, 10, 10);
         $(ev.target).addClass('dragstart');
-        eleDrag = ev.target;
     });
     dom.on('drag', function (ev) {
         ev = ev.originalEvent;
@@ -80,8 +79,7 @@
         ev = ev.originalEvent;
         ev.preventDefault();
         $(ev.target).removeClass('dragstart');
-
-        return false
+        return false;
     });
 
     drop.on('dragover', function (ev) {

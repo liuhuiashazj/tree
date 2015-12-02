@@ -356,7 +356,7 @@
             this.delegate(events);
         },
         evtMouseDown: function (e) {
-            e.preventDefault();
+            //e.preventDefault(); //阻止后导致drag事件不触发
             e.stopPropagation();
             /*var ie678 = !-[1,];
              if (e.button != 0 && !ie678) return;*/
