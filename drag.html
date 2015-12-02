@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="src/jquery.min.js"></script>
+    <title></title>
+</head>
+<style>
+    .test3 {
+        background-color: #ccc;
+        width: 100px;
+        height: 50px;
+        border: 1px solid transparent;
+    }
+
+    .test4 {
+        background-color: #ccc;
+        border: 1px solid transparent;
+        width: 100px;
+        height: 50px;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    .dragstart {
+        border: 1px dotted red;
+    }
+
+    .dragenter {
+        border:1px solid blue;
+        cursor: pointer;
+        color: white;
+        line-height: 20px;
+
+    }
+
+    .drag-icon {
+        border:1px dotted blue;
+        background-color: #fff;
+         line-height: 20px;
+        width: 100px;
+        height: 20px;
+        position: absolute;
+
+    }
+</style>
+<body>
+<div id="test3" title="拖拽我" draggable="true" class="test3">拖拽我</div>
+<div id="test4" class="test4">放下我</div>
+<div id="test5" class='test4 nodrop'>asdfasdf</div>
+<script type="text/javascript">
+    var dom = $('#test3'), eleDrag,
+            drop = $('.test4'),
+            $dragText = $('<div />').addClass('drag-icon').appendTo('body').hide();
+    var img = new Image();
+    img.src = 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==';
+    dom.on('dragstart', function (ev) {
+        ev = ev.originalEvent;
+        ev.dataTransfer.effectAllowed = 'move';
+        ev.dataTransfer.dropEffect = 'move';
+        ev.dataTransfer.setData('text', ev.target.innerHTML);
+        ev.dataTransfer.setDragImage(img, 10, 10);
+        $(ev.target).addClass('dragstart');
+        eleDrag = ev.target;
+    });
+    dom.on('drag', function (ev) {
+        ev = ev.originalEvent;
+        if (ev.clientX == 0) {
+            $dragText.hide();
+        } else {
+            $dragText.css({
+                left: ev.clientX + 10,
+                top:  ev.clientY + 10
+            }).html(ev.target.innerHTML).show();
+        }
+
+    });
+    dom.on('dragend', function (ev) {
+        $dragText.hide();
+        ev = ev.originalEvent;
+        ev.preventDefault();
+        $(ev.target).removeClass('dragstart');
+
+        return false
+    });
+
+    drop.on('dragover', function (ev) {
+        ev = ev.originalEvent;
+        ev.preventDefault();
+        /*must .is a bug*/
+    });
+    drop.on('dragenter', function (ev) {
+        ev = ev.originalEvent;
+        $(ev.target).addClass('dragenter');
+
+    });
+    drop.on('dragleave', function (ev) {
+        ev = ev.originalEvent;
+        $(ev.target).removeClass('dragenter');
+    });
+    drop.on('drop', function (ev) {
+        ev = ev.originalEvent;
+        ev.preventDefault();
+        console.log('123', ev.dataTransfer.getData('text'));
+        $(ev.target).removeClass('dragenter');
+        $(ev.target).html(ev.dataTransfer.getData('text'));
+        return false;
+
+    });
+
+</script>
+
+</body>
+</html>

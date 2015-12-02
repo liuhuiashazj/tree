@@ -43,7 +43,9 @@
 
         return {
             init: function (options) {
-                var uid = this.getUid(), parentId = options.parentId, data;
+                var self = this, data, uid = this.getUid(),
+                parentId = options.parentId,
+                plugins = options.plugins || [];
                 data = options.datas || {};
                 this.curPaths = [];
                 this.curDepth = 0;
@@ -64,6 +66,9 @@
                 this.createTree();
                 this.bindEvents();
                 this.addEvents();
+                $.each(plugins, function (index, plugin) {
+                    plugin.init.call(self);
+                });
 
             },
             getItemId: function () {
@@ -74,16 +79,21 @@
             bindEvents: function () {
                 var self = this, events = {};
 
-                events['click .' + anchorCls] = self.evtFocus;
+                //events['click .' + anchorCls] = self.evtFocus;
                 events['mouseenter .' + anchorCls] = self.evtEnter;
                 events['mouseleave .' + anchorCls] = self.evtLeave;
+                events['dragstart .' + anchorCls] = self.evtDragStart;
+
                 events['click .' + iconcls] = self.evtFold;
                 events['keyup .' + inputCls] = self.evtInputKeyup;
                 events['blur .' + inputCls] = self.evtInputBlur;
+
                 this.delegate(events);
 
             },
-
+            evtDragStart: function (e) {
+                console.log(123);
+            },
             addEvents: function () {
             },
             createTree: function (show) {
@@ -101,7 +111,7 @@
                 });
             },
             createCtree: function (parent, show) {
-                var self = this,$ul,
+                var self = this, $ul,
                 depth = parent.getAttribute('data-depth'),
                 path = parent.getAttribute('data-path'),
                 thiscurDepth = depth;
@@ -231,13 +241,10 @@
             },
             createLi: function (data, only) {
                 var li, i, span, newPath, newDepth,
-                aid = this.aliasId,
                 ahasChild = this.aliasHasChild,
-                apath = 'path',
                 atext = this.aliasText,
                 achild = this.aliasChild,
                 itemId = data['itemId'],
-                id = data[aid],
                 text = data[atext],
                 child = data[achild] || [], ul,
                 hasChild = data[ahasChild] || this.hasChild(child);
@@ -391,8 +398,9 @@
         };
     })();
     $.BaseTree = BaseTree;
+    $.BaseTree.plugins=[];
     /*远程获取数据的树*/
-    var RemoteTree = BaseTree.extend({
+    $.RemoteTree = BaseTree.extend({
         alias: function (props) {
             var alias = {
                 id: 'fid',
@@ -404,7 +412,6 @@
         },
 
         getData: function (path) {
-
             var self = this, data = {}, aid, ids,
             deferred = $.Deferred(),
             remoteData = $.lutils.ajax();
@@ -433,8 +440,8 @@
 
         }
     });
-    $.RemoteTree = RemoteTree;
-    var MenuTree = BaseTree.extend({
+    /*带邮件操作功能*/
+    $.MenuTree = BaseTree.extend({
         initRigthDrop: function () {
             var self = this;
             if (!this.options.useRight) return;
@@ -542,7 +549,6 @@
 
         }
     });
-    $.MenuTree = MenuTree;
 
 })($);
 
