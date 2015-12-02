@@ -71,18 +71,20 @@
         }
     ];
     window.onload = function () {
-        window.tree = $.MenuTree.getExample({
+        window.tree = $.BaseTree.getExample({
             datas: treeData,
             parentId: 'test',
             useRight: true,
             depth: 100,
             open: true,
-
+            url: 'data/data.json',
+            urlChild: 'data/databyid.json',
+            plugins:['menu'],
             clickFunc: function (e) {
                 console.log(e.target);
             }
         });
-        window.tree2 = $.RemoteTree.getExample({
+        /*window.tree2 = $.RemoteTree.getExample({
             parentId: 'test2',
             url: 'data/data.json',
             urlChild: 'data/databyid.json',
@@ -92,7 +94,7 @@
             clickFunc: function () {
                 console.log('click');
             }
-        });
+        });*/
 
     };
 

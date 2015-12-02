@@ -47,6 +47,10 @@
                 parentId = options.parentId,
                 plugins = options.plugins || [];
                 data = options.datas || {};
+                $.each(plugins, function (index, plugin) {
+                    plugin = $.BaseTree.plugins[plugin];
+                    plugin && plugin.init.call(self, options);
+                });
                 this.curPaths = [];
                 this.curDepth = 0;
                 this.depth = options.depth || depth;
@@ -66,9 +70,6 @@
                 this.createTree();
                 this.bindEvents();
                 this.addEvents();
-                $.each(plugins, function (index, plugin) {
-                    plugin.init.call(self);
-                });
 
             },
             getItemId: function () {
@@ -398,157 +399,173 @@
         };
     })();
     $.BaseTree = BaseTree;
-    $.BaseTree.plugins=[];
-    /*远程获取数据的树*/
-    $.RemoteTree = BaseTree.extend({
-        alias: function (props) {
-            var alias = {
-                id: 'fid',
-                text: 'dirname',
-                hasChild: 'havechild',
-                child: 'child'
-            };
-            return alias[props] || props;
-        },
+    $.BaseTree.plugins = {};
+    $.BaseTree.plugins.remote = (function () {
+        var obj = {
+            alias: function (props) {
+                var alias = {
+                    id: 'fid',
+                    text: 'dirname',
+                    hasChild: 'havechild',
+                    child: 'child'
+                };
+                return alias[props] || props;
+            },
 
-        getData: function (path) {
-            var self = this, data = {}, aid, ids,
-            deferred = $.Deferred(),
-            remoteData = $.lutils.ajax();
-            if (path) {
-                ids = path.split(',');
-                aid = this.aliasId;
-                data[aid] = ids[ids.length - 1];
-            }
-            remoteData.request({
-                url: self.options.url,
-                dataType: 'json',
-                type: 'GET',
-                data: data,
-                success: function (data) {
-                    if (parseInt(data.errno)) return;
-                    data = data.result;
-                    if (path) {
-                        self.addDataToPath(path, data);
-                    } else {
-                        self.datas = data;
-                    }
-                    deferred.resolve();
+            getData: function (path) {
+                var self = this, data = {}, aid, ids,
+                deferred = $.Deferred(),
+                remoteData = $.lutils.ajax();
+                if (path) {
+                    ids = path.split(',');
+                    aid = this.aliasId;
+                    data[aid] = ids[ids.length - 1];
                 }
-            });
-            return deferred.promise();
+                remoteData.request({
+                    url: self.options.url,
+                    dataType: 'json',
+                    type: 'GET',
+                    data: data,
+                    success: function (data) {
+                        if (parseInt(data.errno)) return;
+                        data = data.result;
+                        if (path) {
+                            self.addDataToPath(path, data);
+                        } else {
+                            self.datas = data;
+                        }
+                        deferred.resolve();
+                    }
+                });
+                return deferred.promise();
+
+            }
+        };
+
+        return {
+            init: function () {
+                $.extend(this, obj);
+            }
 
         }
-    });
-    /*带邮件操作功能*/
-    $.MenuTree = BaseTree.extend({
-        initRigthDrop: function () {
-            var self = this;
-            if (!this.options.useRight) return;
-            this.rightDropdown = $.RightDropDown.getExample({
-                el: '.jstree-item span',
-                parent: '#' + treeId + '-' + uid, /*相对于谁来绝对定位*/
-                leftOffset: 0,
-                topOffset: 0,
-                tpl: '<%for(var i=0;i<this.lists.length;i++){ list=this.lists[i];%><li data-value="<%list.value%>" ><%list.name%></li><%}%>',
-                lists: [
-                    {
-                        name: '重命名',
-                        value: 'rename'
-                    },
-                    {
-                        name: '新建子目录',
-                        value: 'create'
-                    },
-                    {
-                        name: '删除',
-                        value: 'delete'
+    })();
+    $.BaseTree.plugins.menu = (function () {
+        var obj = {
+            initRigthDrop: function () {
+                var self = this;
+                if (!this.options.useRight) return;
+                this.rightDropdown = $.RightDropDown.getExample({
+                    el: '.jstree-item span',
+                    parent: '#' + treeId + '-' + uid, /*相对于谁来绝对定位*/
+                    leftOffset: 0,
+                    topOffset: 0,
+                    tpl: '<%for(var i=0;i<this.lists.length;i++){ list=this.lists[i];%><li data-value="<%list.value%>" ><%list.name%></li><%}%>',
+                    lists: [
+                        {
+                            name: '重命名',
+                            value: 'rename'
+                        },
+                        {
+                            name: '新建子目录',
+                            value: 'create'
+                        },
+                        {
+                            name: '删除',
+                            value: 'delete'
+                        }
+                    ],
+                    tplSpan: '<span class="op5"><%=name%></span>',
+                    selectCallback: function ($obj) {
+                        var path, id,
+                        $parentNode = this.$obj,
+                        type = $obj.attr('data-value');
+                        id = $parentNode.attr('data-tree-id');
+                        path = $parentNode.attr('data-path');
+                        switch (type) {
+                            case 'create':
+                                self.addNode($parentNode, path);
+                                break;
+                            case 'rename':
+                                self.renameNode($parentNode, path);
+                                break;
+                            case 'delete':
+                                self.deleteNode($parentNode, path);
+                                break;
+                            default :
+                                break;
+                        }
                     }
-                ],
-                tplSpan: '<span class="op5"><%=name%></span>',
-                selectCallback: function ($obj) {
-                    var path, id,
-                    $parentNode = this.$obj,
-                    type = $obj.attr('data-value');
-                    id = $parentNode.attr('data-tree-id');
-                    path = $parentNode.attr('data-path');
-                    switch (type) {
-                        case 'create':
-                            self.addNode($parentNode, path);
-                            break;
-                        case 'rename':
-                            self.renameNode($parentNode, path);
-                            break;
-                        case 'delete':
-                            self.deleteNode($parentNode, path);
-                            break;
-                        default :
-                            break;
-                    }
+                });
+            },
+            addNode: function ($obj, path) {
+                var data = {}, index,
+                $li = $obj.parent('li');
+                index = $li.find('li').length;
+                data[this.aliasText] = '新建文件夹';
+                data[this.aliasHasChild] = 0;
+                data['index'] = index;
+                data['itemId'] = this.getItemId();
+                data['isInput'] = 1;
+                this.addDataToPath(path, [data]);
+                this.createCtree($li[0], 1);
+                $li.find('input').select().focus();
+
+            },
+            renameNode: function ($obj, path) {
+                var $input = $('<input />');
+                $input.val($obj.html());
+                $input.attr('data-path', $obj.attr('data-path'));
+                $input.addClass(inputCls);
+                $obj.replaceWith($input);
+                $input.select().focus();
+
+            },
+            deleteNode: function ($obj, path) {
+                var parent, parentNode,
+                map = this.removeDataByPath(path);
+                $obj.parent('li').remove();
+                parent = map.parent;
+                if (typeof parent.itemId != undefined) {
+                    parentNode = this.$parent.find('[data-tree-id=' + parent.itemId + ']');
+                    if (!parent.hasChild) parentNode.removeClass().addClass('jstree-item');
                 }
-            });
-        },
-        addNode: function ($obj, path) {
-            var data = {}, index,
-            $li = $obj.parent('li');
-            index = $li.find('li').length;
-            data[this.aliasText] = '新建文件夹';
-            data[this.aliasHasChild] = 0;
-            data['index'] = index;
-            data['itemId'] = this.getItemId();
-            data['isInput'] = 1;
-            this.addDataToPath(path, [data]);
-            this.createCtree($li[0], 1);
-            $li.find('input').select().focus();
 
-        },
-        renameNode: function ($obj, path) {
-            var $input = $('<input />');
-            $input.val($obj.html());
-            $input.attr('data-path', $obj.attr('data-path'));
-            $input.addClass(inputCls);
-            $obj.replaceWith($input);
-            $input.select().focus();
+            },
+            addEvents: function () {
+                this.initRigthDrop();
+                var self = this, events = {};
+                events['keyup .' + inputCls] = self.evtInputKeyup;
+                events['blur .' + inputCls] = self.evtInputBlur;
+                this.delegate(events);
+            },
+            evtInputKeyup: function (e) {
+                var $obj = $(e.target);
+                if (e.keyCode == 13) {
+                    $obj[0].blur();
+                }
+            },
+            evtInputBlur: function (e) {
+                var $span, data, path, val, rt,
+                $obj = $(e.target), $parent = $obj.parent('li'),
+                addCallback = this.options.addCallback;
+                addCallback && addCallback.call(this, e);
+                val = $obj.val();
+                path = $obj.attr('data-path');
+                rt = this.setDataByPath(path, {text: val, id: 100});
+                if (!rt) return;
+                $span = $('<span />').addClass(anchorCls).attr('data-path', path).html(val);
+                $obj.replaceWith($span);
 
-        },
-        deleteNode: function ($obj, path) {
-            var parent, parentNode,
-            map = this.removeDataByPath(path);
-            $obj.parent('li').remove();
-            parent = map.parent;
-            if (typeof parent.itemId != undefined) {
-                parentNode = this.$parent.find('[data-tree-id=' + parent.itemId + ']');
-                if (!parent.hasChild) parentNode.removeClass().addClass('jstree-item');
             }
+        };
+        return {
+            init: function () {
+                $.extend(this, obj);
 
-        },
-        addEvents: function () {
-            this.initRigthDrop();
-            var self = this, events = {};
-            events['keyup .' + inputCls] = self.evtInputKeyup;
-            events['blur .' + inputCls] = self.evtInputBlur;
-            this.delegate(events);
-        },
-        evtInputKeyup: function (e) {
-            var $obj = $(e.target);
-            if (e.keyCode == 13) {
-                $obj[0].blur();
             }
-        },
-        evtInputBlur: function (e) {
-            var $span, data, path, val, rt,
-            $obj = $(e.target), $parent = $obj.parent('li'),
-            addCallback = this.options.addCallback;
-            addCallback && addCallback.call(this, e);
-            val = $obj.val();
-            path = $obj.attr('data-path');
-            rt = this.setDataByPath(path, {text: val, id: 100});
-            if (!rt) return;
-            $span = $('<span />').addClass(anchorCls).attr('data-path', path).html(val);
-            $obj.replaceWith($span);
-
         }
-    });
+
+    })();
 
 })($);
 
