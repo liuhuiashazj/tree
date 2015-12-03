@@ -47,25 +47,28 @@
                 parentId = options.parentId,
                 plugins = options.plugins || [];
                 data = options.datas || {};
+                this.options = options;
                 this.plugins = plugins;
-
                 this.curPaths = [];
                 this.curDepth = 0;
                 this.depth = options.depth || depth;
                 this.open = options.open || open;
                 if (options.transData) this.transData = options.transData;
-                this.parent = $.ldom.getById(parentId);
-                this.$parent = $(this.parent);
-                this.parent.setAttribute('data-tree-id', treeId + '-' + uid);
-                this.parent.setAttribute('id', treeId + '-' + uid);
-                this.parent.className = treeId;
-                this.options = options;
+                this.$parent = $('#' + parentId);
+                this.parent = this.$parent[0];
+
+                this.$parent.attr('data-tree-id', treeId + '-' + uid);
+                this.$parent.addClass(treeId);
+
                 $.each(plugins, function (index, plugin) {
                     plugin = $.BaseTree.plugins[plugin];
                     plugin && plugin.init.call(self, options);
                 });
-
+                this.allData = {};
+                this.allData['data-tree-id', treeId + '-' + uid];
                 this.datas = this.transData(options.datas);
+                this.allData['datas'] = this.datas;
+
                 this.aliasHasChild = this.alias('hasChild');
                 this.aliasId = this.alias('id');
                 this.aliasText = this.alias('text');
@@ -79,7 +82,7 @@
                 this.itemId = this.itemId || 0;
                 return this.itemId++;
             },
-            getDataByItemId:function(){
+            getDataByItemId: function () {
 
             },
 
@@ -94,6 +97,7 @@
                 events['click .' + anchorCls] = self.evtClick;
                 events['mouseenter .' + anchorCls] = self.evtEnter;
                 events['mouseleave .' + anchorCls] = self.evtLeave;
+                events['dragstart .' + anchorCls] = self.evtDragStart;
 
                 events['click .' + iconcls] = self.evtFold;
                 events['keyup .' + inputCls] = self.evtInputKeyup;
@@ -113,12 +117,12 @@
                     map = self.getDataByPath();
                     datas = map.data.child;
                     dom = self.insertDataToDom(parent, datas, show);
-                    self.tree = dom;
                     if (!self.open) {
                         self.closeAll();
                     }
                 });
             },
+
             createCtree: function (parent, show) {
                 var self = this, $ul, defferd = $.Deferred(),
                 depth = parent.getAttribute('data-depth'),
@@ -380,7 +384,7 @@
             },
 
             closeAll: function () {
-                var dom = this.tree, ul, hasChild, cls;
+                var dom = this.parent, ul, hasChild, cls;
                 $(dom).find('li ul').hide();
                 $(dom).find('li').each(function (index, ele) {
                     hasChild = ele.getAttribute('data-child') - 0;
@@ -389,7 +393,7 @@
                 });
             },
             openAll: function () {
-                var dom = this.tree, ul, hasChild, cls;
+                var dom = this.parent, ul, hasChild, cls;
                 $(dom).find('li ul').show();
                 $(dom).find('li').each(function (index, ele) {
                     hasChild = ele.getAttribute('data-child');
@@ -667,10 +671,10 @@
     $.BaseTree.plugins.dnd = (function () {
         var obj = {
             evtDragstart: function (ev) {
-                var $obj = $(ev.target), path,id,$li=$obj.parent('li');
+                var $obj = $(ev.target), path, id, $li = $obj.parent('li');
                 path = $li.attr('data-path');
-                id=$li.attr('data-tree-id');
-                this.$dragli=$li;
+                id = $li.attr('data-tree-id');
+                this.$dragli = $li;
                 ev = ev.originalEvent;
                 ev.dataTransfer.effectAllowed = 'move';
                 ev.dataTransfer.dropEffect = 'move';
@@ -708,31 +712,31 @@
                 $(ev.target).removeClass('dragenter');
             },
             evtDrop: function (ev) {
-                var $ul,$li,$obj=$(ev.target);
+                var $ul, $li, $obj = $(ev.target);
                 ev = ev.originalEvent;
                 ev.preventDefault();
                 $obj.removeClass('dragenter');
-                $li=$obj.parent('li');
+                $li = $obj.parent('li');
 
-                this.moveLiToLi(this.$dragli,$li);
+                this.moveLiToLi(this.$dragli, $li);
                 return false;
             },
-            moveLiToLi:function($li,$destli){
-                var $ul=$destli.find('>ul>'),path1,path2,data;
-                path1=$li.attr('data-path');
-                path2=$destli.attr('data-path');
-                data=this.getDataByPath(path1);
+            moveLiToLi: function ($li, $destli) {
+                var $ul = $destli.find('>ul>'), path1, path2, data;
+                path1 = $li.attr('data-path');
+                path2 = $destli.attr('data-path');
+                data = this.getDataByPath(path1);
                 this.removeDataByPath(path1);
                 debugger;
-                this.addDataToPath(path2,[data]);
+                this.addDataToPath(path2, [data]);
 
-                console.log(path1,path2,data,this.datas);
-                if(path2.match(path1)){
+                console.log(path1, path2, data, this.datas);
+                if (path2.match(path1)) {
                     console.log('不能移动到该节点的子节点');
                     return;
                 }
 
-                if(!$ul.length){
+                if (!$ul.length) {
                     $ul = $('<ul />');
                     $destli.append($ul);
                 }
