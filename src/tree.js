@@ -93,7 +93,7 @@
                 var self = this, events = {};
                 $.each(this.plugins, function (index, plugin) {
                     plugin = $.BaseTree.plugins[plugin];
-                    plugin && plugin.bindEvents.call(self);
+                    plugin &&plugin.bindEvents&& plugin.bindEvents.call(self);
                 });
 
                 events['click .' + anchorCls] = self.evtClick;
@@ -123,11 +123,16 @@
                     }
                 });
             },
+            fetchById: function (id, callback) {
+                console.log('you must implement this func');
+            },
 
             createCtree: function (parent, show) {
-                var self = this, $ul, defferd = $.Deferred(),
-                depth = parent.getAttribute('data-depth'),
-                path = parent.getAttribute('data-path');
+                var self = this, $ul, id,path,
+                defferd = $.Deferred(),
+                depth = 0;
+                id=parent.getAttribute('data-tree-id');
+                path=this.mapPath[id].join(',');
                 this.curDepth = depth;
                 this.curPaths = path.split(',');
                 $ul = $(parent).find('ul');
@@ -192,7 +197,7 @@
 
                 parent.child.splice(map.index, 1);
                 delete self.mapPath[data.itemId];
-                this.resetPath(parent.path.join(','));
+                this.resetDataByPath(parent.path.join(','));
 
                 if (!parent.child.length) {
                     parent[this.aliasHasChild] = 0;
@@ -200,7 +205,7 @@
                 return map;
 
             },
-            resetPath: function (path) {
+            resetDataByPath: function (path) {
                 var self = this, data, arrPath, data, map, newArr;
                 map = this.getDataByPath(path);
                 data = map.data;
@@ -216,7 +221,7 @@
                     d.index = i;
                     d.depth = depth + 1;
                     if (d.hasChild) {
-                        self.resetPath(newArr.join(','));
+                        self.resetDataByPath(newArr.join(','));
                     }
 
                 });
@@ -247,7 +252,7 @@
                 data.child = child;
                 data.isOpen = 1;
                 data.isInput = 0;
-                this.resetPath(data.path.join(','));
+                this.resetDataByPath(data.path.join(','));
                 return rt;
 
             },

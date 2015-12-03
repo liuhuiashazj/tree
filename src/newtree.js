@@ -40,20 +40,24 @@
     mouseOnCls = 'jstree-item-on',
     focusCls = 'jstree-item-active';
     var BaseTree = (function () {
-
         return {
             init: function (options) {
-                var self = this, data, uid = this.getUid(),
+                var self = this, data, uid = this.getUid(),copt,
                 parentId = options.parentId,
                 plugins = options.plugins || [];
                 data = options.datas || {};
                 this.options = options;
                 this.plugins = plugins;
-                this.curPaths = [];
-                this.curDepth = 0;
+                this.litpl = '' +
+                             '<i class="jstree-icon "></i>' +
+                             '<%if(!this.isInput){%>' +
+                             '<span class="jstree-anchor" draggable="true">id:<%this.itemId%>---<%this.path%></span>' +
+                             '<%}else{%>' +
+                             '<input class="jstree-input" type="text" value="<%this.text%>"/>' +
+                             '<%}%>' +
+                             '';
                 this.depth = options.depth || depth;
                 this.open = options.open || open;
-                if (options.transData) this.transData = options.transData;
                 this.$parent = $('#' + parentId);
                 this.parent = this.$parent[0];
 
@@ -65,27 +69,14 @@
                     plugin = $.BaseTree.plugins[plugin];
                     plugin && plugin.init.call(self, options);
                 });
+                copt=options.remote?options.remote:options.datas;
+                this.dataCollection = $.TreeData.getExample(copt);
+                window.treeData = this.dataCollection;
 
-                this.datas = this.transData(options.datas);
-                this.mapPath = {};
-
-                this.aliasHasChild = this.alias('hasChild');
-                this.aliasId = this.alias('id');
-                this.aliasText = this.alias('text');
-                this.aliasChild = this.alias('child');
                 this.createTree();
                 this.bindEvents();
                 this.addEvents();
 
-            },
-            getItemId: function () {
-                this.itemId = this.itemId || 0;
-                return this.itemId++;
-            },
-            getDataByItemId: function (id) {
-                var data, path = this.mapPath[id];
-                data = this.getDataByPath(path.join(','));
-                return data;
             },
 
             bindEvents: function () {
@@ -93,7 +84,7 @@
                 var self = this, events = {};
                 $.each(this.plugins, function (index, plugin) {
                     plugin = $.BaseTree.plugins[plugin];
-                    plugin && plugin.bindEvents.call(self);
+                    plugin && plugin.bindEvents && plugin.bindEvents.call(self);
                 });
 
                 events['click .' + anchorCls] = self.evtClick;
@@ -113,10 +104,10 @@
             createTree: function (show) {
                 var self = this;
                 $(this.parent).html('');
-                this.getData().done(function () {
-                    var datas, parent = self.parent,
-                    map = self.getDataByPath();
-                    datas = map.data.child;
+                this.dataCollection.getData().done(function () {
+                    var collection = self.dataCollection,
+                    datas, parent = self.parent;
+                    datas = collection.datas;
                     self.insertDataToDom(parent, datas, show);
                     if (!self.open) {
                         self.closeAll();
@@ -124,232 +115,55 @@
                 });
             },
 
-            createCtree: function (parent, show) {
-                var self = this, $ul, defferd = $.Deferred(),
-                depth = parent.getAttribute('data-depth'),
-                path = parent.getAttribute('data-path');
-                this.curDepth = depth;
-                this.curPaths = path.split(',');
-                $ul = $(parent).find('ul');
+            createCtree: function (li) {
+                var self = this, $ul, defferd = $.Deferred(),id,path,
+                $ul = $(li).find('ul');
                 $ul.remove();
-                this.getData(path).done(function () {
-                    var datas, map = self.getDataByPath(path);
+                id=li.getAttribute('tree-item-id');
+                this.dataCollection.getData(id).done(function () {
+                    var datas, map = self.dataCollection.getDataByItemId(id);
                     datas = map.data.child;
-                    if (datas.length) $(parent).addClass(iconopen);
-                    self.insertDataToDom(parent, datas, 1);
+                    self.insertDataToDom(li, datas, 1);
                     defferd.resolve();
                 });
                 return defferd.promise();
 
             },
-            getData: function (path) {
-                var self = this, deferred = $.Deferred();
-                deferred.resolve();
-                return deferred.promise();
-            },
-            transData: function (data) {/*根据数据自己写*/
-                return data;
-            },
-            getDataByPath: function (path) {
-                var self = this, rootData,
-                parent, newParent,
-                cpath, data;
-                rootData = {
-                    child: self.datas,
-                    hasChild: self.datas.length ? 1 : 0
-                };
-                if (!path) {
-                    return {
-                        data: rootData
-                    };
-                }
-                cpath = path.split(',');
-                for (var i = 0, l = cpath.length; i < l; i++) {
-                    path = cpath[i];
-                    parent = i == 0 ? self.datas : data;
-                    data = i == 0 ? self.datas[path] : data.child[path];
-                }
-                if ($.isArray(parent)) {
-                    newParent = {
-                        hasChild: parent.length ? 1 : 0,
-                        child: parent
-                    }
-                } else {
-                    newParent = parent;
-                }
-                return {
-                    data: data,
-                    index: path,
-                    parent: newParent
-                };
 
-            },
-            removeDataByPath: function (path) {
-                var self = this, child, parent, depth, itemId, data,
-                map = this.getDataByPath(path);
-                data = map.data;
-                parent = map.parent;
-
-                parent.child.splice(map.index, 1);
-                delete self.mapPath[data.itemId];
-                this.resetPath(parent.path.join(','));
-
-                if (!parent.child.length) {
-                    parent[this.aliasHasChild] = 0;
-                }
-                return map;
-
-            },
-            resetPath: function (path) {
-                var self = this, data, arrPath, data, map, newArr;
-                map = this.getDataByPath(path);
-                data = map.data;
-                arrPath = data.path;
-                depth = data.depth;
-                $.each(data.child, function (i, d) {
-                    d = data.child[i];
-                    arrPath.push(i);
-                    newArr = $.extend([], arrPath);
-                    d.path = newArr;
-                    self.mapPath[d.itemId] = newArr;
-                    arrPath.pop();
-                    d.index = i;
-                    d.depth = depth + 1;
-                    if (d.hasChild) {
-                        self.resetPath(newArr.join(','));
-                    }
-
-                });
+            insertDataToDom: function (parent, data) {
+                var self = this, $ul = self.createLis(data);
+                $(parent).append($ul);
+                return $ul;
             },
 
-            addDataToPath: function (path, odata) {/*odata为数组*/
-                var self = this, data, map, rt = true,
-                depth, child, names = {}, name = self.aliasText, index;
-                map = this.getDataByPath(path);
-                data = map.data;
-                child = data.child || [];
-
-                $.each(child, function (index, childData) {
-                    names[childData[name]] = 1;
-                });
-
-                $.each(odata, function (i, d) {
-                    if (!names[data[name]]) {
-                        child.push(d);
-                    } else {
-                        console.log('重名');
-                        rt = false;
-
-                    }
-                });
-
-                data.hasChild = child.length;
-                data.child = child;
-                data.isOpen = 1;
-                data.isInput = 0;
-                this.resetPath(data.path.join(','));
-                return rt;
-
-            },
-
-            setDataByPath: function (path, options) {
-                var child, parent, data, names = {}, arr, index,
-                name = this.aliasText,
-                map = this.getDataByPath(path);
-                arr = path.split(',');
-                index = arr.pop();
-                child = map.parent.child || [];
-                $.each(child, function (i, childData) {
-                    if (i != index) names[childData[name]] = 1;
-                });
-                if (names[options.text]) {
-                    console.log('不能重名');
-                    return false;
-                }
-                data = map.data;
-                data[this.aliasText] = options.text;
-                data[this.aliasId] = options.id;
-                data.isInput = 0;
-                return true;
-            },
-            insertDataToDom: function (parent, data, type) {
-                var self = this, ul = self.createLis(data, type);
-                parent.appendChild(ul);
-                return ul;
-            },
-
-            createLis: function (datas, only) {
-                var li, data, ul, itemId;
-                ul = document.createElement('UL');
+            createLis: function (datas) {
+                var $li, data, $ul;
+                $ul = $('<ul/>');
                 for (var i = 0, l = datas.length; i < l; i++) {
                     data = datas[i];
-                    data['itemId'] = this.getItemId();
-                    data['index'] = i;
-                    li = this.createLi(data, only);
-                    ul.appendChild(li);
+                    $li = this.createLi(data);
+                    $ul.append($li);
                 }
-                return ul;
+                return $ul;
             },
-            createLi: function (data, only) {
-                var li, i, span, newPath, newDepth,
-                ahasChild = this.aliasHasChild,
-                atext = this.aliasText,
-                achild = this.aliasChild,
-                itemId = data['itemId'],
-                text = data[atext],
-                child = data[achild] || [], ul,
-                hasChild = data[ahasChild] || this.hasChild(child);
-                hasChild = hasChild - 0;
-                data[ahasChild] = hasChild;
-                this.curPaths.push(data["index"]);
-                newPath = $.lutils.cloneArr(this.curPaths);
-                this.curDepth++;
-                newDepth = this.curDepth;
-                if (!hasChild) {
-                    this.curPaths.pop();
-                    this.curDepth--;
+            createLi: function (data) {
+                var ul, child = data.child || [], $li, cls,
+                inner = $.template(this.litpl, data);
+                $li = $('<li />').append(inner).addClass(licls).attr('tree-item-id',data.itemId);
+                if (data.hasChild) {
+                    cls = data.isOpen ? iconopen : iconclose;
+                    $li.addClass(cls);
                 }
-                data.path = newPath;
-                this.mapPath[itemId] = newPath;
-                data.depth = newDepth;
-                li = $('<li />').addClass(licls).attr('data-tree-id', itemId);
-                i = $('<i />').addClass(iconcls).appendTo(li);
-
-                if (!data.isInput) {
-                    span = $('<span />').html(text).addClass(anchorCls);
-
-                } else {
-                    span = $('<input />').val(text).addClass(inputCls);
-
-                }
-                span.attr('draggable', 'true').appendTo(li);
-                if (!hasChild) {
-                    return li[0];
-                }
-                if (((newDepth < this.depth ) && hasChild && child.length && !only) || data.isOpen) {
+                if(data.hasChild&&data.child){
                     ul = this.createLis(child);
-                    this.curPaths.pop();
-                    this.curDepth--;
-                    data.isOpen = 1;
-                    li.append(ul);
-                    li.addClass(iconopen);
-                } else {
-                    this.curPaths.pop();
-                    this.curDepth--;
-                    data.isOpen = 0;
-                    li.addClass(iconclose);
-
+                    $li.append(ul);
+                    return $li;
+                }else{
+                    return $li;
                 }
 
-                return li[0];
+            },
 
-            },
-            fetchById: function (id, callback) {
-                console.log('you must implement this func');
-            },
-            hasChild: function (obj) {
-                return obj.length ? true : false;
-            },
             evtEnter: function (e) {
                 $(e.target).addClass(mouseOnCls);
             },
@@ -381,8 +195,8 @@
 
             },
             evtFold: function (e) {
-                var obj = e.target,
-                $li = $(obj).parent('li');
+                var $obj = $(e.target), $li,
+                $li = $obj.parent('li');
                 if ($li.hasClass(iconclose)) {
                     this.showFold($li);
                 } else if ($li.hasClass(iconopen)) {
@@ -426,13 +240,7 @@
                     $(ele).removeClass().addClass(cls);
                 });
             },
-            openPath: function (path) {
-                var data = this.getDataByPath(path);
 
-            },
-            alias: function (props) {
-                return props;
-            },
             delegate: function (events) {
                 var self = this, arr, func, event, selector,
                 $parent = $(this.parent);
@@ -472,55 +280,7 @@
     })();
     $.BaseTree = BaseTree;
     $.BaseTree.plugins = {};
-    $.BaseTree.plugins.remote = (function () {
-        var obj = {
-            alias: function (props) {
-                var alias = {
-                    id: 'fid',
-                    text: 'dirname',
-                    hasChild: 'havechild',
-                    child: 'child'
-                };
-                return alias[props] || props;
-            },
 
-            getData: function (path) {
-                var self = this, data = {}, aid, ids,
-                deferred = $.Deferred(),
-                remoteData = $.lutils.ajax();
-                if (path) {
-                    ids = path.split(',');
-                    aid = this.aliasId;
-                    data[aid] = ids[ids.length - 1];
-                }
-                remoteData.request({
-                    url: self.options.url,
-                    dataType: 'json',
-                    type: 'GET',
-                    data: data,
-                    success: function (data) {
-                        if (parseInt(data.errno)) return;
-                        data = data.result;
-                        if (path) {
-                            self.addDataToPath(path, data);
-                        } else {
-                            self.datas = data;
-                        }
-                        deferred.resolve();
-                    }
-                });
-                return deferred.promise();
-
-            }
-        };
-
-        return {
-            init: function () {
-                $.extend(this, obj);
-            }
-
-        }
-    })();
     $.BaseTree.plugins.menu = (function () {
         var obj = {
             getFileId: function () {
@@ -631,7 +391,7 @@
                 map = this.removeDataByPath(path);
                 $li.remove();
                 parent = map.parent;
-                $parent=this.$parent.find('[data-tree-id=' + parent.itemId + ']');
+                $parent = this.$parent.find('[data-tree-id=' + parent.itemId + ']');
                 if (!parent.hasChild) {
                     $parent.removeClass().addClass(licls);
                 }
@@ -757,7 +517,6 @@
                 path2 = $destli.attr('data-path');
                 data = this.getDataByPath(path1);
                 this.removeDataByPath(path1);
-                debugger;
                 this.addDataToPath(path2, [data]);
 
                 console.log(path1, path2, data, this.datas);
