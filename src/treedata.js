@@ -14,6 +14,7 @@
             init: function (datas) {
                 if ($.isArray(datas)) {
                     this.datas = datas;
+                    this.mapData[1] = this.getRootData();
                 } else {
                     this.remote = 1;
                     $.extend(this, datas);
@@ -48,6 +49,7 @@
                             self.addDataToId(id, data)
                         } else {
                             self.datas = data;
+                            self.mapData[1] = self.getRootData();
 
                         }
                         deferred.resolve();
@@ -62,7 +64,7 @@
                 var self = this, deferred = $.Deferred(), data;
                 data = this.getDataById(id);
                 if (data && data.length) {
-                    this.resetChildDataById();
+                    if (!id) this.resetChildDataById();
                     deferred.resolve();
                 } else {
                     this.fetchData(id).done(function () {
@@ -80,8 +82,17 @@
 
             },
 
-            /*删除一个子节点*/
-            removeDataById: function (id, datas) {
+            /*删除一个子节点
+             * return {boolean} 父级是否还有子节点*/
+            removeDataById: function (id) {
+                var data = this.mapData[id],
+                parentid = data.parentItemId,
+                parent = this.mapData[parentid];
+                parent.child.splice(data.index, 1);
+                delete this.mapData[id];
+                this.resetChildDataById(parentid);
+                return parent.hasChild;
+
             },
 
             /*
@@ -92,13 +103,13 @@
              @return {boolean} 插入是否成功
              * */
             addDataToId: function (id, datas, index) {
-                var self = this, data = this.mapData[id], child,rp,rt=true;
+                var self = this, data = this.mapData[id], child, rp, rt = true;
 
                 child = data.child || [];
                 index = index == undefined ? child.length : index;
 
                 $.each(datas, function (i, tdata) {
-                    rp=self.checkRepeat(tdata,id);
+                    rp = self.checkRepeat(tdata, id);
                     if (!rp) {
                         index++;
                         child.splice(index, 0, tdata);
@@ -118,7 +129,8 @@
             },
             /*检查是否重复*/
             checkRepeat: function (data, parentId) {
-                var self = this, parent, child, rp = false,
+                var self = this, parent, child, rp = false;
+
                 parent = this.mapData[parentId];
                 child = parent.child || [];
                 $.each(child, function (i, childData) {
@@ -141,36 +153,49 @@
              * @return {boolean} 设置是否成功
              * */
             setDataById: function (id, data) {
-                var originData = this.mapData[id];
-                $.extend(originData, data);
+                var rp, originData = this.mapData[id],
+                newData = $.extend({}, originData);
+                newData = $.extend(newData, data);
+
+                rp = this.checkRepeat(newData, originData.parentItemId);
+                if (rp) {
+                    console.log('不能重名');
+                    return false;
+                }
+                $.extend(originData, newData);
                 return true;
             },
             openDataById: function (id) {
-                var originData=this.mapData[id];
-                originData.isOpen=1;
+                var originData = this.mapData[id];
+                originData.isOpen = 1;
 
             },
-            closeDataById:function(id){
-                var originData=this.mapData[id];
-                originData.isOpen=0;
+            closeDataById: function (id) {
+                var originData = this.mapData[id];
+                originData.isOpen = 0;
+            },
+            getRootData: function () {
+                var data = {
+                    child: this.datas,
+                    hasChild: 1,
+                    itemId: 1
+                };
+
+                return data;
+
             },
 
             /*重置某棵树的所有子节点*/
             resetChildDataById: function (id) {
                 var self = this, data, newArr, depth, arrPath;
-                if (!id) {
-                    data = {
-                        child: this.datas,
-                        hasChild: 1,
-                        itemId: 1
-
-                    }
-                } else {
-                    data = this.mapData[id];
-                }
+                id = id || 1;
+                data = this.mapData[id];
 
                 arrPath = data.path || [];
                 depth = data.depth || 1;
+                if (!data.child.length) {/*子节点被删除时*/
+                    data.hasChild = 0;
+                }
                 $.each(data.child, function (i, tdata) {
 
                     if (!tdata.itemId) {
@@ -187,8 +212,8 @@
                     tdata.hasChild = self.hasChild(tdata);
                     tdata.isOpen = tdata.hasChild && tdata.child && tdata.child.length;
 
-                    tdata.text = tdata[self.aliasText]||tdata.text;
-                    tdata.child = tdata[self.aliasChild]||tdata.child;
+                    if (!tdata.text) tdata.text = tdata[self.aliasText] || tdata.text;
+                    if (!tdata.child) tdata.child = tdata[self.aliasChild] || tdata.child;
 
                     self.mapPath[tdata.itemId] = tdata.path;
                     self.mapDepth[tdata.itemId] = tdata.depth;

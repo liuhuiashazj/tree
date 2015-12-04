@@ -1,7 +1,11 @@
 # tree
 基于jquery的插件
 树形结构生成器，支持远程拉取数据或者本地数据来生成子树
-支持右键菜单（删除、添加子目录、重命名）（undergoing）
+menu插件
+	双击重命名
+	支持右键菜单（删除、添加子目录、重命名）
+dnd插件
+	拖拽文件（注意：不能拖拽至子目录）
 
 
 使用方式：
@@ -24,10 +28,24 @@ window.tree = $.BaseTree.getExample({
     datas: treeData,
     parentId: 'test',
     depth: 100,
-    open: false,
-    url: 'data/data.json',
-    urlChild: 'data/databyid.json',
-    plugins:[/*'remote',*/'menu'],
+    open: true,
+    remote: {
+        url: 'data/data.json',
+        curl: 'data/databyid.json',
+        alias: function (props) {
+            var alias = {
+                id: 'fid',
+                text: 'dirname',
+                hasChild: 'havechild',
+                child: 'child'
+            };
+            return alias[props] || props;
+        }
+    },
+    plugins: [/*'remote',*/
+        'menu',
+        'dnd'
+    ],
     clickFunc: function (e) {
         //console.log(e.target);
     }

@@ -39,7 +39,7 @@
     inputCls = 'jstree-input',
     mouseOnCls = 'jstree-item-on',
     focusCls = 'jstree-item-active',
-    treeItemId='jstree-item-id';
+    treeItemId = 'jstree-item-id';
     var BaseTree = (function () {
         return {
             init: function (options) {
@@ -383,16 +383,14 @@
 
             },
             deleteNode: function ($obj) {
-                var parent, path, map, $li, id, $parent;
+                var parentLi, $li, id, hasChild;
                 $li = $obj.parent('li');
+                parentLi = $li[0].parentNode.parentNode;
                 id = $li.attr(treeItemId);
-                path = this.mapPath[id].join(',');
-                map = this.removeDataByPath(path);
+                hasChild = this.dataCollection.removeDataById(id);
                 $li.remove();
-                parent = map.parent;
-                $parent = this.$parent.find('['+treeItemId+'=' + parent.itemId + ']');
-                if (!parent.hasChild) {
-                    $parent.removeClass().addClass(licls);
+                if (!hasChild) {
+                    $(parentLi).removeClass().addClass(licls);
                 }
 
             },
@@ -427,8 +425,7 @@
                 } else {
                     id = $li.attr(treeItemId);
                     rt = this.dataCollection.setDataById(id, {
-                        text: val,
-                        id: 100
+                        text: val
                     })
 
                 }
@@ -507,7 +504,6 @@
                 ev.preventDefault();
                 $obj.removeClass('dragenter');
                 $li = $obj.parent('li');
-
                 this.moveLiToLi(this.$dragli, $li);
                 return false;
             },
