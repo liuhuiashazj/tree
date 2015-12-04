@@ -215,6 +215,17 @@
         },
         setAttr: function (el, name, value) {
             return el.setAttribute(name, value);
+        },
+        getParentByTag: function (el, name) {
+            var parent = el.parentNode;
+            while (parent.tagName.toLowerCase() != name && parent.tagName != 'BODY') {
+                parent = parent.parentNode;
+
+            }
+            if (parent.tagName.toLowerCase() == name) {
+                return parent;
+            }
+
         }
 
     };

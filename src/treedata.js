@@ -6,10 +6,6 @@
 
         return {
             datas: [],
-            curPaths: [],
-            curDepth: 1,
-            mapPath: {},
-            mapDepth: {},
             mapData: {},
             init: function (datas) {
                 if ($.isArray(datas)) {
@@ -63,15 +59,17 @@
             fetchDataById: function (id) {
                 var self = this, deferred = $.Deferred(), data;
                 data = this.getDataById(id);
+
                 if (data && data.length) {
-                    if (!id) this.resetChildDataById();
+                    if (!id&&!this.hasInit) this.resetChildDataById();
                     deferred.resolve();
                 } else {
                     this.fetchData(id).done(function () {
-                        if (!id) self.resetChildDataById();
+                        if (!id&&!this.hasInit) self.resetChildDataById();
                         deferred.resolve();
                     });
                 }
+                this.hasInit=1;
                 return deferred.promise();
             },
             /*获取一颗子树
@@ -143,8 +141,38 @@
 
             },
 
-            /*move某个子节点 把sid移动到did的子节点中*/
-            moveDataToId: function (sid, did) {
+            /*move某个子节点 把sid移动到did的子节点中
+            * @param sid {number} 被移动的id
+            * @param did {number} 目标节点id
+            * @param index {number} 移入位置
+            * @return {boolean} 操作成功与否
+            * */
+            moveDataToId: function (sid, did,index) {
+                var sdata, ddata,sparent,schild,dchild,spath,dpath,reg;
+                sdata = this.mapData[sid];
+                ddata = this.mapData[did];
+                sparent=this.mapData[sdata.parentItemId];
+                schild=sparent.child;
+                dchild=ddata.child||[];
+                spath=sdata.path.join(',');
+                dpath=ddata.path.join(',');
+                reg=new RegExp('/^'+spath+'/');
+                if(dpath.match(reg)){
+                    console.log('不能移动到子节点');
+                    return false;
+                }
+                schild.splice(sdata.index,1);
+                if(!schild.length){
+                    sparent.hasChild=0;
+                }
+                if(!index) index=dchild.length;
+                dchild.splice(index,0,sdata);
+                sdata.parentId=ddata.itemId;
+                ddata.hasChild=1;
+                ddata.child=dchild;
+                this.resetChildDataById(ddata.itemId);
+                return true;
+
             },
 
             /*修改一个子树
@@ -215,8 +243,6 @@
                     if (!tdata.text) tdata.text = tdata[self.aliasText] || tdata.text;
                     if (!tdata.child) tdata.child = tdata[self.aliasChild] || tdata.child;
 
-                    self.mapPath[tdata.itemId] = tdata.path;
-                    self.mapDepth[tdata.itemId] = tdata.depth;
 
                     self.mapData[tdata.itemId] = tdata;
                     if (tdata.hasChild && tdata.child) {
@@ -235,6 +261,10 @@
                 };
                 return alias[props] || props;
 
+            },
+            hasChildById:function(id){
+                var data=this.mapData[id];
+                return this.hasChild(data);
             },
             hasChild: function (obj) {
                 var child = obj[this.aliasChild] || [], hasChild = obj[this.aliasHasChild] - 0;
