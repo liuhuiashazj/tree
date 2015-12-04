@@ -18,7 +18,7 @@
 <div id="test"></div>
 树2：远程读取数据的树--------------------
 <div id="test2"></div>
-<div id="refresh">刷新数据</div>
+<div id="refresh" style="width:100px;height:100px;background-color: #ccc;">刷新数据</div>
 
 <script type="text/javascript">
     var treeData = [
@@ -101,6 +101,7 @@
             }
         });
         $('#refresh').click(function(){
+            console.log(12313);
             window.tree.createTree();
         });
         /*window.tree2 = $.RemoteTree.getExample({
