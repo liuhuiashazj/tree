@@ -5,9 +5,9 @@
     var TreeData = (function () {
 
         return {
-            datas: [],
-            mapData: {},
             init: function (datas) {
+                this.mapData={};
+                this.datas=[];
                 if ($.isArray(datas)) {
                     this.datas = datas;
                     this.mapData[1] = this.getRootData();
@@ -156,7 +156,7 @@
                 dchild=ddata.child||[];
                 spath=sdata.path.join(',');
                 dpath=ddata.path.join(',');
-                reg=new RegExp('/^'+spath+'/');
+                reg=new RegExp('^'+spath);
                 if(dpath.match(reg)){
                     console.log('不能移动到子节点');
                     return false;
@@ -165,6 +165,8 @@
                 if(!schild.length){
                     sparent.hasChild=0;
                 }
+                this.resetChildDataById(sdata.parentItemId);
+
                 if(!index) index=dchild.length;
                 dchild.splice(index,0,sdata);
                 sdata.parentId=ddata.itemId;

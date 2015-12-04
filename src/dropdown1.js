@@ -293,7 +293,7 @@
             }
         }
     })();
-    $.Dropdown = DropDown;
+    $.BaseDropdown = DropDown;
     var InputDropDown = DropDown.extend({
         addEvents: function () {
             var self = this, events = {},

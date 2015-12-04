@@ -10,8 +10,8 @@
  *      data：数据结构
  * Tree 属性
  *      data 数据
- *      depth 默认渲染多少层
- *      open 是否全部展开
+ *      depth 默认渲染多少层(暂时不支持)
+ *      open 是否全部展开(暂时不支持)
  *
  * Tree 类方法
  *      createTree  创建根树
@@ -72,7 +72,6 @@
                 });
                 copt = options.remote ? options.remote : options.datas;
                 this.dataCollection = $.TreeData.getExample(copt);
-                window.treeData = this.dataCollection;
 
                 this.createTree();
                 this.bindEvents();
