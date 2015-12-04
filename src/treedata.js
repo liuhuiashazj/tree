@@ -5,17 +5,14 @@
     var TreeData = (function () {
 
         return {
-            init: function (datas) {
-                this.mapData={};
-                this.datas=[];
-                if ($.isArray(datas)) {
-                    this.datas = datas;
+            init: function (options) {
+                this.mapData = {};
+                this.datas = [];
+                if (!options.remote&&options.datas) {
+                    this.datas = options.datas;
                     this.mapData[1] = this.getRootData();
-                } else {
-                    this.remote = 1;
-                    $.extend(this, datas);
-
                 }
+                $.extend(this, options);
                 this.aliasHasChild = this.alias('hasChild');
                 this.aliasText = this.alias('text');
                 this.aliasId = this.alias('id');
@@ -60,7 +57,7 @@
                 var self = this, deferred = $.Deferred(), data;
                 data = this.getDataById(id);
 
-                if (data && data.length) {
+                if (data&&data.child) {
                     if (!id&&!this.hasInit) this.resetChildDataById();
                     deferred.resolve();
                 } else {
@@ -76,7 +73,8 @@
              * @return {object}
              * */
             getDataById: function (id) {
-                return id ? this.mapData[id] : this.datas;
+                id=id||1;
+                return this.mapData[id];
 
             },
 
@@ -205,10 +203,13 @@
                 originData.isOpen = 0;
             },
             getRootData: function () {
+
                 var data = {
                     child: this.datas,
                     hasChild: 1,
-                    itemId: 1
+                    itemId: 1,
+                    text:this.rootText,
+                    isOpen:1
                 };
 
                 return data;
@@ -223,6 +224,7 @@
 
                 arrPath = data.path || [];
                 depth = data.depth || 1;
+
                 if (!data.child.length) {/*子节点被删除时*/
                     data.hasChild = 0;
                 }
@@ -273,7 +275,7 @@
                 return (child.length || hasChild) ? 1 : 0;
             },
             getItemId: function () {
-                this.itemId = this.itemId || 2;
+                this.itemId = this.itemId || 10;
                 return this.itemId++;
             },
             getExample: function () {

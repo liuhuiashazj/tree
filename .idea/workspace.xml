@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="dc21301e-6801-40bc-91d5-1e431b37afa0" name="Default" comment="" />
+    <list default="true" id="dc21301e-6801-40bc-91d5-1e431b37afa0" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tree.html" afterPath="$PROJECT_DIR$/tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tree.js" afterPath="$PROJECT_DIR$/src/tree.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/treedata.js" afterPath="$PROJECT_DIR$/src/treedata.js" />
+    </list>
     <ignored path="tree.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,14 +27,14 @@
     <favorites_list name="tree" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.522604">
+    <splitter split-orientation="horizontal" split-proportion="0.4300362">
       <split-first>
         <leaf>
-          <file leaf-file-name="treedata.js" pinned="false" current-in-tab="false">
+          <file leaf-file-name="treedata.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/treedata.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-6.6296296" vertical-offset="3143" max-vertical-offset="6688">
-                  <caret line="151" column="42" selection-start-line="151" selection-start-column="42" selection-end-line="151" selection-end-column="42" />
+                <state vertical-scroll-proportion="0.48558247" vertical-offset="1097" max-vertical-offset="6798">
+                  <caret line="65" column="43" selection-start-line="65" selection-start-column="43" selection-end-line="65" selection-end-column="43" />
                   <folding />
                 </state>
               </provider>
@@ -46,11 +50,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="dropdown1.js" pinned="false" current-in-tab="true">
+          <file leaf-file-name="dropdown1.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/src/dropdown1.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="2.7040572" vertical-offset="5324" max-vertical-offset="8800">
-                  <caret line="324" column="71" selection-start-line="324" selection-start-column="71" selection-end-line="324" selection-end-column="71" />
+                <state vertical-scroll-proportion="38.107143" vertical-offset="7216" max-vertical-offset="11638">
+                  <caret line="233" column="13" selection-start-line="233" selection-start-column="13" selection-end-line="233" selection-end-column="13" />
                   <folding />
                 </state>
               </provider>
@@ -100,11 +104,11 @@
       </split-first>
       <split-second>
         <leaf>
-          <file leaf-file-name="tree.js" pinned="false" current-in-tab="false">
+          <file leaf-file-name="tree.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/tree.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="6982" max-vertical-offset="14454">
-                  <caret line="282" column="18" selection-start-line="282" selection-start-column="18" selection-end-line="282" selection-end-column="18" />
+                <state vertical-scroll-proportion="0.6378316" vertical-offset="9171" max-vertical-offset="13024">
+                  <caret line="438" column="0" selection-start-line="438" selection-start-column="0" selection-end-line="438" selection-end-column="0" />
                   <folding>
                     <element signature="n#!!doc" expanded="true" />
                   </folding>
@@ -112,11 +116,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="base.js" pinned="false" current-in-tab="true">
+          <file leaf-file-name="base.js" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/src/base.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.6308725" vertical-offset="5112" max-vertical-offset="6006">
-                  <caret line="226" column="13" selection-start-line="226" selection-start-column="13" selection-end-line="226" selection-end-column="13" />
+                <state vertical-scroll-proportion="0.0" vertical-offset="5112" max-vertical-offset="6006">
+                  <caret line="213" column="27" selection-start-line="213" selection-start-column="27" selection-end-line="213" selection-end-column="27" />
                   <folding />
                 </state>
               </provider>
@@ -125,8 +129,8 @@
           <file leaf-file-name="tree.html" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/tree.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-3.0344827" vertical-offset="0" max-vertical-offset="3586">
-                  <caret line="12" column="48" selection-start-line="12" selection-start-column="48" selection-end-line="12" selection-end-column="48" />
+                <state vertical-scroll-proportion="-1.6896552" vertical-offset="2735" max-vertical-offset="3542">
+                  <caret line="131" column="17" selection-start-line="131" selection-start-column="17" selection-end-line="131" selection-end-column="17" />
                   <folding>
                     <element signature="n#style#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                     <element signature="n#style#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -156,10 +160,10 @@
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/src/base.js" />
         <option value="$PROJECT_DIR$/src/newtree.js" />
-        <option value="$PROJECT_DIR$/src/tree.js" />
-        <option value="$PROJECT_DIR$/src/treedata.js" />
         <option value="$PROJECT_DIR$/src/dropdown.js" />
+        <option value="$PROJECT_DIR$/src/treedata.js" />
         <option value="$PROJECT_DIR$/tree.html" />
+        <option value="$PROJECT_DIR$/src/tree.js" />
       </list>
     </option>
   </component>
@@ -167,9 +171,9 @@
     <detection-done>true</detection-done>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1280" />
+    <option name="x" value="1281" />
     <option name="y" value="23" />
-    <option name="width" value="1680" />
+    <option name="width" value="1679" />
     <option name="height" value="1027" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -334,7 +338,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="23" width="1680" height="1027" extended-state="6" />
+    <frame x="1281" y="23" width="1679" height="1027" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32846716" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -343,7 +347,7 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32941177" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24954128" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.13682942" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18713932" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -497,36 +501,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/treedata.js">
+    <entry file="file://$PROJECT_DIR$/src/base.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.6296296" vertical-offset="3143" max-vertical-offset="6688">
-          <caret line="151" column="42" selection-start-line="151" selection-start-column="42" selection-end-line="151" selection-end-column="42" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="5112" max-vertical-offset="6006">
+          <caret line="213" column="27" selection-start-line="213" selection-start-column="27" selection-end-line="213" selection-end-column="27" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/dropdown1.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.7040572" vertical-offset="5324" max-vertical-offset="8800">
-          <caret line="324" column="71" selection-start-line="324" selection-start-column="71" selection-end-line="324" selection-end-column="71" />
+        <state vertical-scroll-proportion="38.107143" vertical-offset="7216" max-vertical-offset="11638">
+          <caret line="233" column="13" selection-start-line="233" selection-start-column="13" selection-end-line="233" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/tree.js">
+    <entry file="file://$PROJECT_DIR$/src/treedata.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="6982" max-vertical-offset="14454">
-          <caret line="282" column="18" selection-start-line="282" selection-start-column="18" selection-end-line="282" selection-end-column="18" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.48558247" vertical-offset="1097" max-vertical-offset="6798">
+          <caret line="65" column="43" selection-start-line="65" selection-start-column="43" selection-end-line="65" selection-end-column="43" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tree.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-3.0344827" vertical-offset="0" max-vertical-offset="3586">
-          <caret line="12" column="48" selection-start-line="12" selection-start-column="48" selection-end-line="12" selection-end-column="48" />
+        <state vertical-scroll-proportion="-1.6896552" vertical-offset="2735" max-vertical-offset="3542">
+          <caret line="131" column="17" selection-start-line="131" selection-start-column="17" selection-end-line="131" selection-end-column="17" />
           <folding>
             <element signature="n#style#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -534,11 +536,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/base.js">
+    <entry file="file://$PROJECT_DIR$/src/tree.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6308725" vertical-offset="5112" max-vertical-offset="6006">
-          <caret line="226" column="13" selection-start-line="226" selection-start-column="13" selection-end-line="226" selection-end-column="13" />
-          <folding />
+        <state vertical-scroll-proportion="0.6378316" vertical-offset="9171" max-vertical-offset="13024">
+          <caret line="438" column="0" selection-start-line="438" selection-start-column="0" selection-end-line="438" selection-end-column="0" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

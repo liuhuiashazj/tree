@@ -100,7 +100,7 @@
             depth: 100,
             open: true,
 
-            plugins: [/*'remote',*/
+            plugins: ['remote',
                 'menu',
                 'dnd'
             ],
@@ -113,18 +113,18 @@
             parentId: 'test2',
             depth: 100,
             open: true,
-            remote: {
-                url: 'data/data.json',
-                curl: 'data/databyid.json',
-                alias: function (props) {
-                    var alias = {
-                        id: 'fid',
-                        text: 'dirname',
-                        hasChild: 'havechild',
-                        child: 'child'
-                    };
-                    return alias[props] || props;
-                }
+            url: 'data/data.json',
+            curl: 'data/databyid.json',
+            showRoot:1,
+            rootText: '根目录',
+            alias: function (props) {
+                var alias = {
+                    id: 'fid',
+                    text: 'dirname',
+                    hasChild: 'havechild',
+                    child: 'child'
+                };
+                return alias[props] || props;
             },
             plugins: [
                 'remote',

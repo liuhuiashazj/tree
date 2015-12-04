@@ -71,7 +71,7 @@
                     plugin && plugin.init.call(self, options);
                 });
                 copt = options.remote ? options.remote : options.datas;
-                this.dataCollection = $.TreeData.getExample(copt);
+                this.dataCollection = $.TreeData.getExample(options);
 
                 this.createTree();
                 this.bindEvents();
@@ -105,9 +105,11 @@
                 var self = this;
                 $(this.parent).html('');
                 this.dataCollection.fetchDataById().done(function () {
-                    var collection = self.dataCollection,
+                    var collection = self.dataCollection,rootData,
                     datas, parent = self.parent;
-                    datas = collection.datas;
+                    rootData=collection.getDataById();
+
+                    datas = self.options.showRoot?[rootData]:rootData.child;
                     self.insertDataToDom(parent, datas, show);
                     if (!self.open) {
                         self.closeAll();
@@ -172,8 +174,10 @@
                 $(e.target).removeClass(mouseOnCls);
             },
             evtFocus: function (e) {
-                var self = this, $obj = $(e.target),
-                callback = this.options.clickFunc;
+                var self = this, $obj = $(e.target),callbacks,
+                callback ;
+                callbacks=this.options.callbacks||{};
+                callback= callbacks.click;
                 self.$activeItem && self.$activeItem.removeClass(focusCls);
                 self.$activeItem = $obj;
                 self.$activeItem.addClass(focusCls);
@@ -306,8 +310,8 @@
                 return this.fileId++;
             },
             initRigthDrop: function () {
-                var self = this;
-                this.rightDropdown = $.RightDropDown.getExample({
+                var self = this,obj;
+                obj={
                     el:     '.' + anchorCls,
                     parent: '#' + self.options.parentId, /*相对于谁来绝对定位*/
                     leftOffset: 0,
@@ -345,13 +349,14 @@
                                 break;
                         }
                     }
-                });
+                };
+                this.rightDropdown = $.RightDropDown.getExample(obj);
             },
             addNode: function ($obj) {
                 var self = this, id, $ul,
                 $li = $obj.parent('li');
                 id = $li.attr(treeItemId);
-
+                $li.addClass(iconopen);
                 this.showFold($li).done(function () {
                     $ul = $li.find('>ul');
                     self.insertInputToUl($ul, id);
@@ -384,7 +389,8 @@
 
             },
             deleteNode: function ($obj) {
-                var parentLi, $li, id, hasChild;
+                var parentLi, $li, id, hasChild,callbacks;
+                callbacks=this.options.callbacks;
                 $li = $obj.parent('li');
                 parentLi = $.ldom.getParentByTag($li[0], 'li');
                 id = $li.attr(treeItemId);
@@ -435,7 +441,7 @@
                     $obj.select().focus();
                     return;
                 }
-                $span = $('<span />').addClass(anchorCls).html(val);
+                $span = $('<span />').addClass(anchorCls).html(val).attr('draggable','true');
                 $obj.replaceWith($span);
 
             }
