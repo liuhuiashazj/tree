@@ -9,11 +9,12 @@
             init: function (options) {
                 this.mapData = {};
                 this.datas = [];
-                if (!options.remote) {
-                    this.datas = options.datas;
-                    this.mapData[1] = this.getRootData();
-                }
                 $.extend(this, options);
+                if (options.datas) {
+                    this.mapData[1] = this.getRootData();
+                    this.resetChildDataById();
+                }
+
                 this.aliasHasChild = this.alias('hasChild');
                 this.aliasText = this.alias('text');
                 this.aliasId = this.alias('id');
