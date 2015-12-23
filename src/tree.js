@@ -39,26 +39,27 @@
     inputCls = 'jstree-input',
     mouseOnCls = 'jstree-item-on',
     focusCls = 'jstree-item-active',
-    treeItemId = 'jstree-item-id';
+    treeItemId = 'jstree-item-id',
+    wnameCls = 'jstree-wname',
+    witemCls = 'jstree-witem',
+    cancelCls = 'jstree-cancel';
     var BaseTree = (function () {
         return {
             init: function (options) {
-                var self = this, data, uid = this.getUid(), copt,
+                var self = this, data, uid = this.getUid(),
                 parentId = options.parentId,
                 plugins = options.plugins || [];
                 data = options.datas || {};
                 this.options = options;
                 this.plugins = plugins;
-                this.litpl = '' +
-                             '<i class="jstree-icon "></i>' +
-                             '<%if(!this.isInput){%>' +
-                             '<span class="jstree-anchor" draggable="true">id:<%this.itemId%>----<%this.text%>----<%this.path%></span>' +
-                             '<%}else{%>' +
-                             '<input class="jstree-input" type="text" value="id:<%this.itemId%>----<%this.text%>----<%this.path%>"/>' +
-                             '<%}%>' +
-                             '';
+                this.litpl = options.litpl || '';
+                this.dbclicktime = options.dbclicktime || 200;
+                this.inputtpl = '<input data-origin="<%this.text%>" data-fid="<%this.fid%>" class="' + inputCls + '" type="text" value="<%this.text%>"/><span class="' + cancelCls + '"></span>';
+                this.spantpl = '<span data-fid="<%this.fid%>" class="' + anchorCls + '" draggable="true"><%this.text%></span>';
+
                 this.depth = options.depth || depth;
                 this.open = options.open || open;
+                this.callbacks = options.callbacks || {};
                 this.$parent = $('#' + parentId);
                 this.parent = this.$parent[0];
 
@@ -70,7 +71,7 @@
                     plugin = $.BaseTree.plugins[plugin];
                     plugin && plugin.init.call(self, options);
                 });
-                copt = options.remote ? options.remote : options.datas;
+
                 this.dataCollection = $.TreeData.getExample(options);
 
                 this.createTree();
@@ -88,12 +89,10 @@
                 });
 
                 events['click .' + anchorCls] = self.evtClick;
-                events['mouseenter .' + anchorCls] = self.evtEnter;
-                events['mouseleave .' + anchorCls] = self.evtLeave;
+                events['mouseenter .' + witemCls] = self.evtEnter;
+                events['mouseleave .' + witemCls] = self.evtLeave;
 
                 events['click .' + iconcls] = self.evtFold;
-                events['keyup .' + inputCls] = self.evtInputKeyup;
-                events['blur .' + inputCls] = self.evtInputBlur;
 
                 this.delegate(events);
 
@@ -105,14 +104,15 @@
                 var self = this;
                 $(this.parent).html('');
                 this.dataCollection.fetchDataById().done(function () {
-                    var collection = self.dataCollection,rootData,
+                    var collection = self.dataCollection, rootData,
                     datas, parent = self.parent;
-                    rootData=collection.getDataById();
-
-                    datas = self.options.showRoot?[rootData]:rootData.child;
+                    rootData = collection.getDataById();
+                    datas = self.options.showRoot ? [rootData] : rootData.child;
                     self.insertDataToDom(parent, datas, show);
                     if (!self.open) {
                         self.closeAll();
+                    } else {
+                        self.openAll();
                     }
                 });
             },
@@ -150,9 +150,9 @@
                 return $ul;
             },
             createLi: function (data) {
-                var ul, child = data.child || [], $li, cls,
+                var ul, child = data.child || [], $li, cls, depth = data.depth || 0,
                 inner = $.template(this.litpl, data);
-                $li = $('<li />').append(inner).addClass(licls).attr(treeItemId, data.itemId);
+                $li = $('<li />').append(inner).addClass(licls + ' depth' + depth).attr(treeItemId, data.itemId);
                 if (data.hasChild) {
                     cls = data.isOpen ? iconopen : iconclose;
                     $li.addClass(cls);
@@ -168,16 +168,17 @@
             },
 
             evtEnter: function (e) {
-                $(e.target).addClass(mouseOnCls);
+                $(e.currentTarget).addClass(mouseOnCls);
             },
             evtLeave: function (e) {
-                $(e.target).removeClass(mouseOnCls);
+                $(e.currentTarget).removeClass(mouseOnCls);
             },
             evtFocus: function (e) {
-                var self = this, $obj = $(e.target),callbacks,
-                callback ;
-                callbacks=this.options.callbacks||{};
-                callback= callbacks.click;
+                var self = this, $obj = $(e.currentTarget), callbacks, $witem,
+                callback;
+                callbacks = this.callbacks;
+                callback = callbacks.click;
+                //$witem= $.ldom.getParentByTag('li');
                 self.$activeItem && self.$activeItem.removeClass(focusCls);
                 self.$activeItem = $obj;
                 self.$activeItem.addClass(focusCls);
@@ -191,7 +192,7 @@
                     this.clickTimer = setTimeout(function () {
                         self.clicks = 0;
                         self.evtFocus(e);
-                    }, 400);
+                    }, self.dbclicktime);
                 } else {
                     clearTimeout(this.clickTimer);
                     this.clicks = 0;
@@ -201,7 +202,7 @@
             },
             evtFold: function (e) {
                 var $obj = $(e.target), $li,
-                $li = $obj.parent('li');
+                $li = $($.ldom.getParentByTag(e.target, 'li'));
                 if ($li.hasClass(iconclose)) {
                     this.showFold($li);
                 } else if ($li.hasClass(iconopen)) {
@@ -245,21 +246,26 @@
             },
 
             closeAll: function () {
-                var dom = this.parent, ul, hasChild, cls;
+                var self = this, dom = this.parent, ul, id, hasChild, cls, data;
                 $(dom).find('li ul').hide();
                 $(dom).find('li').each(function (index, ele) {
-                    hasChild = ele.getAttribute('data-child') - 0;
-                    cls = hasChild ? (licls + ' ' + iconclose) : licls;
-                    $(ele).removeClass().addClass(cls);
+                    id = ele.getAttribute(treeItemId) - 0;
+                    data = self.dataCollection.getDataById(id);
+                    hasChild = data.hasChild;
+                    cls = hasChild ? ( iconclose) : '';
+                    $(ele).removeClass(iconopen).addClass(cls);
                 });
             },
             openAll: function () {
-                var dom = this.parent, ul, hasChild, cls;
+                var self = this, dom = this.parent, ul, id, hasChild, cls, data;
                 $(dom).find('li ul').show();
                 $(dom).find('li').each(function (index, ele) {
-                    hasChild = ele.getAttribute('data-child');
-                    cls = hasChild ? (licls + ' ' + iconopen) : licls;
-                    $(ele).removeClass().addClass(cls);
+                    id = ele.getAttribute(treeItemId) - 0;
+                    data = self.dataCollection.getDataById(id);
+                    ul = $(ele).find('ul');
+                    hasChild = data.hasChild;
+                    cls = hasChild && ul.length ? ( iconopen) : hasChild ? iconclose : '';
+                    $(ele).removeClass(iconclose).addClass(cls);
                 });
             },
 
@@ -310,8 +316,8 @@
                 return this.fileId++;
             },
             initRigthDrop: function () {
-                var self = this,obj;
-                obj={
+                var self = this, obj;
+                obj = {
                     el:     '.' + anchorCls,
                     parent: '#' + self.options.parentId, /*相对于谁来绝对定位*/
                     leftOffset: 0,
@@ -331,10 +337,13 @@
                             value: 'delete'
                         }
                     ],
+
                     tplSpan: '<span class="op5"><%=name%></span>',
                     selectCallback: function ($obj) {
                         var $parentNode = this.$obj,
+                        callback = self.callbacks, addFunc,
                         type = $obj.attr('data-value');
+                        //addFunc = callback.add || self.addNode;
                         switch (type) {
                             case 'create':
                                 self.addNode($parentNode);
@@ -354,7 +363,8 @@
             },
             addNode: function ($obj) {
                 var self = this, id, $ul,
-                $li = $obj.parent('li');
+                $li = $.ldom.getParentByTag($obj[0], 'li');
+                $li = $($li);
                 id = $li.attr(treeItemId);
                 $li.addClass(iconopen);
                 this.showFold($li).done(function () {
@@ -370,9 +380,14 @@
                 data.hasChild = 0;
                 data.index = index;
                 data.isInput = 1;
-                data.parentId = id;
+                data.isAdd = 1;
+                data.parentItemId = id;
                 cli = this.createLi(data, 1);
-                $ul.append(cli);
+                if (this.options.insertBefore) {
+                    $ul.prepend(cli);
+                } else {
+                    $ul.append(cli);
+                }
                 $ul.find('input')
                 .attr('data-isadd', 1)
                 .attr('data-data', JSON.stringify(data))
@@ -380,25 +395,28 @@
 
             },
             renameNode: function ($obj) {
-                var $input = $('<input />');
-                $input.val($obj.html());
-                $input.attr('data-isrename', 1);
-                $input.addClass(inputCls);
-                $obj.replaceWith($input);
-                $input.select().focus();
+                var $li, input = $.template(this.inputtpl, {
+                    text: $obj.html(),
+                    fid: $obj.attr('data-fid')
+                });
+                $li = $obj.parent();
+                $li.html(input);
+                $li.find('input').select().focus();
 
             },
             deleteNode: function ($obj) {
-                var parentLi, $li, id, hasChild,callbacks;
-                callbacks=this.options.callbacks;
-                $li = $obj.parent('li');
+                var parentLi, $li, id, hasChild, callbacks;
+                callbacks = this.options.callbacks;
+                $li = $($.ldom.getParentByTag($obj[0], 'li'));
                 parentLi = $.ldom.getParentByTag($li[0], 'li');
                 id = $li.attr(treeItemId);
-                hasChild = this.dataCollection.removeDataById(id);
-                $li.remove();
-                if (!hasChild) {
-                    $(parentLi).removeClass().addClass(licls);
-                }
+                this.dataCollection.removeDataById(id)
+                .done(function (hasChild) {
+                    $li.remove();
+                    if (!hasChild) {
+                        $(parentLi).removeClass().addClass(licls);
+                    }
+                });
 
             },
 
@@ -413,36 +431,77 @@
                     $obj[0].blur();
                 }
             },
+            evtCancel: function (e) {
+                var $li, input, isadd, $wrap;
+                this.lockCancel = 1;
+                $li = $($.ldom.getParentByTag(e.target, 'li'));
+                $wrap = $(e.target).parent();
+                input = $li.find('input');
+                isadd = input.attr('data-isadd');
+                if (isadd) {
+                    $li.remove();
+
+                } else {
+                    //$wrap.html()
+                }
+
+            },
             evtInputBlur: function (e) {
                 e.stopPropagation();
-                var $span, data, val, rt, isadd, id, $li, parentId,
-                $obj = $(e.target);
-                $li = $obj.parent('li');
+                var self = this, data, val, rt, isadd, id, $li, parentId, $obj = $(e.target);
+
+                $li = $.ldom.getParentByTag(e.target, 'li');
+                $li = $($li);
                 val = $obj.val();
                 isadd = $obj.attr('data-isadd');
                 if (isadd) {
-                    data = $obj.attr('data-data');
-                    data = JSON.parse(data);
-                    data.text = val;
-                    data.isInput = 0;
-                    parentId = data.parentId;
-                    rt = this.dataCollection.addDataToId(parentId, [data]);
-                    id = data.itemId;
-                    $li.attr(treeItemId, id);
+                    setTimeout(function () {
+                        if (self.lockCancel) {
+                            self.lockCancel = 0;
+                            return;
+                        }
+                        data = $obj.attr('data-data');
+                        data = JSON.parse(data);
+                        data.text = val;
+                        data.isInput = 0;
+                        data.itemId = self.dataCollection.getItemId();
+                        parentId = data.parentItemId;
+                        $li.attr(treeItemId, data.itemId);
+                        self.dataCollection.addDataToId(parentId, data).done(function (rt, data) {
+                            self.handleSpan(rt, $obj, data);
+                        });
+                    }, 100);
+
                 } else {
                     id = $li.attr(treeItemId);
-                    rt = this.dataCollection.setDataById(id, {
-                        text: val
-                    })
+                    setTimeout(function () {
+                        if (self.lockCancel) {
+                            self.lockCancel = 0;
+                            return;
+                        }
+                        self.dataCollection.setDataById(id, {
+                            text: val
+                        }).done(function (rt) {
+                            self.handleSpan(rt, $obj);
+                        });
+                    }, 100);
 
                 }
 
+            },
+            handleSpan: function (rt, $obj, data) {
+                var val = $obj.val(), span, fid;
+                fid = $obj.attr('data-fid') || data.fid;
                 if (!rt) {
                     $obj.select().focus();
                     return;
                 }
-                $span = $('<span />').addClass(anchorCls).html(val).attr('draggable','true');
-                $obj.replaceWith($span);
+                span = $.template(this.spantpl, {
+                    text: val,
+                    fid: fid
+                });
+
+                $obj.parent().html(span);
 
             }
         };
@@ -454,6 +513,9 @@
             bindEvents: function () {
                 this.initRigthDrop();
                 var self = this, events = {};
+                events['click .' + cancelCls] = self.evtCancel;
+                events['keyup .' + inputCls] = self.evtInputKeyup;
+                events['blur .' + inputCls] = self.evtInputBlur;
                 events['keyup .' + inputCls] = self.evtInputKeyup;
                 events['blur focusout .' + inputCls] = self.evtInputBlur;
                 //events['dbclick .'+anchorCls]=self.evtDbclick;
@@ -465,7 +527,8 @@
     $.BaseTree.plugins.dnd = (function () {
         var obj = {
             evtDragstart: function (ev) {
-                var $obj = $(ev.target), path, id, $li = $obj.parent('li');
+                console.log(ev);
+                var $obj = $(ev.target), path, id, $li = $($.ldom.getParentByTag(ev.target, 'li'));
                 path = $li.attr('data-path');
                 id = $li.attr(treeItemId);
                 this.$dragli = $li;
@@ -502,9 +565,10 @@
             evtDragenter: function (ev) {
                 var $li, id;
                 ev = ev.originalEvent;
-                $li = $(ev.target).parent('li');
+                $li = $($.ldom.getParentByTag(ev.target, 'li'));
                 id = $li.attr(treeItemId);
                 $(ev.target).addClass('dragenter');
+                console.log($li[0]);
                 if (id != this.dragId) this.showFold($li);
             },
             evtDragleave: function (ev) {
@@ -516,12 +580,12 @@
                 ev = ev.originalEvent;
                 ev.preventDefault();
                 $obj.removeClass('dragenter');
-                $li = $obj.parent('li');
+                $li = $($.ldom.getParentByTag(ev.target, 'li'));
                 this.moveLiToLi(this.$dragli, $li);
                 return false;
             },
             moveLiToLi: function ($sli, $dli) {
-                var $ul = $dli.find('>ul'), sid, did, haschild, parentLi, pid;
+                var self = this, $ul = $dli.find('>ul'), sid, did, haschild, parentLi, pid;
                 sid = $sli.attr(treeItemId);
                 did = $dli.attr(treeItemId);
                 parentLi = $.ldom.getParentByTag($sli[0], 'li');
@@ -530,24 +594,32 @@
                     console.log('没有移动');
                     return;
                 }
-                var rt = this.dataCollection.moveDataToId(sid, did);
-                if (!rt) return;
+                this.dataCollection.moveDataToId(sid, did)
+                .done(function (rt) {
+                    if (!rt) return;
 
-                if (parentLi) {
-                    pid = parentLi.getAttribute(treeItemId);
-                    haschild = this.dataCollection.hasChildById(pid);
-                    if (!haschild) {
-                        this.dataCollection.closeDataById(pid);
-                        $(parentLi).removeClass(iconopen);
+                    if (parentLi) {
+                        pid = parentLi.getAttribute(treeItemId);
+                        haschild = self.dataCollection.hasChildById(pid);
+                        if (!haschild) {
+                            self.dataCollection.closeDataById(pid);
+                            $(parentLi).removeClass(iconopen);
+                        }
+
+                    }
+                    if (!$ul.length) {
+                        $ul = $('<ul />');
+                        $dli.append($ul);
+                    }
+                    $dli.addClass(iconopen);
+                    if (self.options.insertBefore) {
+                        $ul.prepend($sli[0]);
+                    } else {
+                        $ul.append($sli[0]);
                     }
 
-                }
-                if (!$ul.length) {
-                    $ul = $('<ul />');
-                    $dli.append($ul);
-                }
-                $dli.addClass(iconopen);
-                $ul.append($sli[0]);
+                });
+
                 return;
 
             }

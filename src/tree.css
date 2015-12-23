@@ -18,28 +18,57 @@
 	user-select: none;
 
 }
+
+.jstree-input {
+    line-height: 22px;
+    height: 22px;
+    border: 1px solid #63a2ef;
+    vertical-align: middle;
+    padding-left:5px;
+    outline: none;
+}
+
 .jstree-anchor{
     border: 2px dotted transparent;
-}
-.jstree-item-active{
-    background-color: #456;
-    color: white;
+    cursor: pointer;
 }
 
-.jstree-item>.jstree-icon {
-    width: 20px;
+.jstree-item-active * {
+    color: #63a2ef;
+}
+
+.jstree-item >.jstree-witem> .jstree-icon {
+    width: 18px;
     background: url(fold.png) no-repeat -60px center transparent;
-
+    margin-left: 2px;
+    display: none;
 
 }
-.jstree-open>.jstree-icon{
+
+.jstree-open >.jstree-witem > .jstree-icon {
     background: url(fold.png) no-repeat -30px center transparent;
     cursor: pointer;
+    display: inline-block;
 }
-.jstree-close>.jstree-icon{
+
+.jstree-close>.jstree-witem > .jstree-icon {
     background: url(fold.png) no-repeat 0 center transparent;
     cursor: pointer;
+    display: inline-block;
 }
+
 .jstree-item-on{
-    background-color: #ccc;
+    color: #63a2ef;
+}
+.jstree-cancel{
+    background: url(fold.png) no-repeat -93px center transparent;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-left:6px;
+    cursor: pointer;
+}
+.jstree-wname{
+    display: inline-block;
 }

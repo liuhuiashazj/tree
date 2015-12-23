@@ -94,29 +94,42 @@
         }
     ];
     window.onload = function () {
-        window.tree = $.BaseTree.getExample({
-            datas: treeData,
-            parentId: 'test',
-            depth: 100,
-            open: true,
+        /*window.tree = $.BaseTree.getExample({
+         datas: treeData,
+         parentId: 'test',
+         depth: 100,
+         open: true,
 
-            plugins: ['remote',
-                'menu',
-                'dnd'
-            ],
-            clickFunc: function (e) {
-                //console.log(e.target);
-            }
-        });
+         plugins: ['remote',
+         'menu',
+         'dnd'
+         ],
+         clickFunc: function (e) {
+         //console.log(e.target);
+         }
+         });*/
 
         window.tree2 = $.BaseTree.getExample({
             parentId: 'test2',
             depth: 100,
-            open: true,
             url: 'data/data.json',
             curl: 'data/databyid.json',
-            showRoot:1,
-            rootText: '根目录',
+            /*addurl: '/v1/disk/createdir', //添加的服务器地址
+            moveurl: '/v1/disk/movefile', //移动服务器地址
+            removeurl: '/v1/disk/deletefile',
+            seturl: '/v1/disk/updateinfor',*/
+            litpl: '<div class="jstree-witem" >' +
+                   '<i class="jstree-icon "></i><div class="jstree-wname" >' +
+                   '<%if(!this.isInput){%>' +
+                   '<span class="jstree-anchor" data-fid="<%this.fid%>" draggable="true"><%this.text%></span>' +
+                   '<%}else{%>' +
+                   '<input class="jstree-input"  type="text" value="<%this.text%>"/><span class="jstree-cancel"></span>' +
+                   '<%}%>' +
+                   '</div></div>',
+            dbclicktime: 200,
+            showRoot: 1,
+            insertBefore: 1,
+            rootText: '全部文件',
             alias: function (props) {
                 var alias = {
                     id: 'fid',
@@ -126,13 +139,19 @@
                 };
                 return alias[props] || props;
             },
+            aliasData: function (data) {
+                return data.result;
+            },
             plugins: [
-                'remote',
+
                 'menu',
                 'dnd'
             ],
-            clickFunc: function (e) {
-                //console.log(e.target);
+            open: true,
+            callbacks: {
+                click: function (e) {
+                    console.log('click');
+                }
             }
         });
         $('#refresh').click(function () {
